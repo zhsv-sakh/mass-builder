@@ -22,7 +22,6 @@
   body{padding-bottom:96px}
   .wrap{max-width:640px;margin:0 auto;padding:10px 12px}
 
-  /* ---------- topbar ---------- */
   .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
   .topbar .left{flex:1;min-width:0}
   .topbar h1{font-size:18px;margin:0;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -41,7 +40,6 @@
   .todaybtn:active{transform:scale(.95)}
   .todaybtn.hidden{display:none}
 
-  /* ---------- day strip ---------- */
   .dayrow{display:flex;align-items:center;gap:8px;margin:0 -12px 6px;padding:0 12px}
   .dayarrow{flex:none;background:var(--card);border:1px solid var(--line);color:var(--muted);
     width:36px;height:56px;border-radius:11px;display:flex;align-items:center;justify-content:center;
@@ -66,7 +64,6 @@
   .day.has::after{content:'';position:absolute;left:50%;transform:translateX(-50%);
     bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--good)}
 
-  /* ---------- mode row ---------- */
   .moderow{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:nowrap}
   .moderow .label{font-size:12px;color:var(--muted);white-space:nowrap}
   .seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:11px;overflow:hidden;flex:1}
@@ -75,7 +72,6 @@
   .seg button.on{background:var(--accent);color:#fff}
   .seg button.on.rest{background:#5a6478}
 
-  /* ---------- bars ---------- */
   .bars{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     padding:10px 12px;margin-bottom:12px}
   .bar{margin-bottom:8px}
@@ -87,7 +83,6 @@
   .fill{height:100%;width:0%;border-radius:5px;transition:width .25s ease}
   .fill.zero{background:var(--bad);width:3px!important}
 
-  /* ---------- meal card ---------- */
   .meal{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     margin-bottom:12px;overflow:hidden;position:relative;
     border-top:2px solid var(--m-top,var(--line))}
@@ -128,7 +123,6 @@
   .item.done .nm{color:var(--muted);text-decoration:line-through}
   .item .kbju{font-size:11px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
 
-  /* ---------- water ---------- */
   .mealwater{display:flex;align-items:center;justify-content:center;gap:10px;
     padding:10px 12px;border-top:1px solid var(--line);background:var(--card2);
     position:relative;z-index:1}
@@ -158,7 +152,6 @@
   .extra .kbju{font-size:11px;color:var(--muted)}
   .extra .del{background:transparent;border:0;color:var(--muted);font-size:15px;cursor:pointer;padding:2px 6px}
 
-  /* ---------- vitamins ---------- */
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     padding:12px;margin-bottom:12px}
   .card h3{margin:0 0 10px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
@@ -176,7 +169,6 @@
   .vit.creatine{transition:opacity .2s,transform .2s}
   .vit.creatine.hide{opacity:0;transform:scale(.9);pointer-events:none;height:0;padding:0;margin:0;overflow:hidden;border:0}
 
-  /* ---------- totals ---------- */
   .totals{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     padding:11px;margin-bottom:12px}
   .totals .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;text-align:center}
@@ -184,7 +176,6 @@
   .totals .cell .v{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
   .totals .cell .l{font-size:10px;color:var(--muted);margin-top:1px}
 
-  /* ---------- progress ---------- */
   .tabpage{display:none}
   .tabpage.on{display:block}
   .chartcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
@@ -222,7 +213,6 @@
   .hist div:active{background:var(--card2)}
   .hist div b{color:var(--txt)}
 
-  /* ---------- tabbar ---------- */
   .tabbar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
     display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
   .tabbar button{flex:1;background:transparent;border:0;color:var(--muted);padding:10px 0 13px;
@@ -232,7 +222,6 @@
   .tabbar button .ic{font-size:19px}
   .tabbar button.on{color:var(--accent)}
 
-  /* ---------- overlays ---------- */
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;z-index:100;
     align-items:flex-end;justify-content:center;opacity:0;transition:opacity .22s}
   .overlay.on{display:flex;opacity:1}
@@ -259,11 +248,8 @@
   .primary{width:100%;background:var(--accent);border:0;color:#fff;border-radius:11px;padding:13px;
     font-size:14.5px;font-weight:700;cursor:pointer;transition:.15s;min-height:48px;touch-action:manipulation}
   .primary:active{transform:scale(.98)}
-  .primary.secondary{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
-  .primary.danger{background:transparent;color:var(--bad);border:1px solid rgba(255,69,58,.4)}
   .hint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.45}
 
-  /* ---------- profile rows ---------- */
   .profrow{display:flex;justify-content:space-between;align-items:center;padding:11px 0;
     border-bottom:1px solid var(--line);font-size:14px;gap:10px}
   .profrow input,.profrow select{background:var(--card2);border:1px solid var(--line);color:var(--txt);
@@ -274,7 +260,6 @@
     letter-spacing:.5px;margin:16px 0 8px}
   .section-title:first-child{margin-top:0}
 
-  /* ---------- backup block ---------- */
   .backuprow{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
   .backuprow button{width:100%;padding:12px;font-size:13.5px;font-weight:600;border-radius:10px;
     cursor:pointer;transition:.15s;border:1px solid var(--line);background:var(--card2);color:var(--txt);
@@ -285,7 +270,6 @@
     border-radius:9px;text-align:center;font-variant-numeric:tabular-nums}
   .backupinfo.warn{color:var(--warn);background:rgba(255,204,0,.08)}
 
-  /* ---------- calendar ---------- */
   .calnav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
   .calnav .title{font-size:15.5px;font-weight:700;flex:1;text-align:center;cursor:pointer;
     padding:6px;border-radius:8px}
@@ -313,7 +297,6 @@
   .calgrid .cd.has::after{content:'';position:absolute;width:5px;height:5px;border-radius:50%;
     background:var(--good);transform:translateY(11px)}
 
-  /* Year/month picker */
   .picker{display:none;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
   .picker.on{display:grid}
   .picker button{background:var(--card2);border:1px solid var(--line);color:var(--txt);
@@ -321,13 +304,7 @@
     transition:.15s;min-height:44px}
   .picker button:active{background:var(--accent);color:#fff;border-color:var(--accent)}
   .picker button.on{background:var(--accent);border-color:var(--accent);color:#fff}
-  .yearbar{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
-  .yearbar button{background:var(--card2);border:1px solid var(--line);color:var(--txt);
-    width:38px;height:38px;border-radius:10px;font-size:16px;cursor:pointer;transition:.15s}
-  .yearbar button:active{transform:scale(.94)}
-  .yearbar .yr{font-size:17px;font-weight:700;min-width:80px;text-align:center}
 
-  /* ---------- misc ---------- */
   .empty{color:var(--muted);font-size:13px;text-align:center;padding:14px}
   .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));
     transform:translateX(-50%) translateY(20px);
@@ -337,7 +314,6 @@
   html[data-theme="light"] .toast{background:#1a1f29}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
-  /* ---------- onboarding ---------- */
   .onboard{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;
     flex-direction:column;align-items:center;justify-content:center;padding:24px;
     text-align:center;transition:opacity .3s}
@@ -368,7 +344,6 @@
 </head>
 <body>
 
-<!-- ONBOARDING -->
 <div class="onboard" id="onboard">
   <div class="ob-icon" id="obIcon">💪</div>
   <h2 id="obTitle">Набор массы</h2>
@@ -383,7 +358,6 @@
 </div>
 
 <div class="wrap">
-  <!-- TOPBAR -->
   <div class="topbar">
     <div class="left">
       <h1 id="hName">💪 Виталик</h1>
@@ -394,19 +368,17 @@
         <b id="hWeight">67.5</b>
         <span>кг</span>
       </div>
-      <button class="todaybtn hidden" id="btnToday" title="К сегодня">← сегодня</button>
-      <button class="iconbtn" id="btnCalendar" title="Календарь">📅</button>
+      <button class="todaybtn hidden" id="btnToday">← сегодня</button>
+      <button class="iconbtn" id="btnCalendar">📅</button>
     </div>
   </div>
 
-  <!-- TAB: TODAY -->
   <div class="tabpage on" id="tabToday">
     <div class="dayrow">
       <button class="dayarrow" id="dayPrev">‹</button>
       <div class="daystrip" id="dayStrip"></div>
       <button class="dayarrow" id="dayNext">›</button>
     </div>
-
     <div class="moderow">
       <div class="label">Режим:</div>
       <div class="seg" id="modeSeg">
@@ -414,20 +386,16 @@
         <button data-mode="rest">😴 Отдых</button>
       </div>
     </div>
-
     <div class="bars" id="bars"></div>
     <div id="mealsWrap"></div>
-
     <div class="card">
       <h3>💊 Витамины и добавки</h3>
       <div class="vits" id="vitsWrap"></div>
       <div class="hint">D3, Омега-3, мульти — утром. Магний и цинк — на ночь. Креатин — только в тренировочные дни.</div>
     </div>
-
     <div class="totals"><div class="grid" id="totalsGrid"></div></div>
   </div>
 
-  <!-- TAB: PROGRESS -->
   <div class="tabpage" id="tabProgress">
     <div class="chartcard">
       <h3>⚖️ Вес, кг</h3>
@@ -465,14 +433,12 @@
   </div>
 </div>
 
-<!-- TABBAR -->
 <div class="tabbar">
   <button data-tab="today" class="on"><span class="ic">🍽️</span>Сегодня</button>
   <button data-tab="progress"><span class="ic">📈</span>Прогресс</button>
   <button data-tab="settings"><span class="ic">⚙️</span>Настройки</button>
 </div>
 
-<!-- FOOD MODAL -->
 <div class="overlay" id="foodOverlay">
   <div class="sheet">
     <button class="iconbtn close" id="foodClose">✕</button>
@@ -496,21 +462,20 @@
   </div>
 </div>
 
-<!-- PORTION MODAL -->
 <div class="overlay" id="portionOverlay">
   <div class="sheet">
     <button class="iconbtn close" id="portionClose">✕</button>
     <h3>⚖️ Порция</h3>
-    <div class="portionbox" style="background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px">
-      <div class="pname" id="portionName" style="font-size:16px;font-weight:700;margin-bottom:12px">—</div>
-      <div class="portionrow" style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+    <div style="background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px">
+      <div id="portionName" style="font-size:16px;font-weight:700;margin-bottom:12px">—</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
         <button id="portionMinus" style="background:var(--card);border:1px solid var(--line);color:var(--txt);width:48px;height:48px;border-radius:11px;font-size:20px;font-weight:700;cursor:pointer">−</button>
         <input type="number" id="portionInput" min="1" max="5000" step="1" value="100" inputmode="decimal"
           style="flex:1;background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:12px;font-size:20px;font-weight:700;text-align:center;min-height:48px">
         <div style="font-size:14px;color:var(--muted);width:24px;text-align:center">г</div>
         <button id="portionPlus" style="background:var(--card);border:1px solid var(--line);color:var(--txt);width:48px;height:48px;border-radius:11px;font-size:20px;font-weight:700;cursor:pointer">+</button>
       </div>
-      <div class="portionresult" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
         <div style="background:var(--card);border-radius:10px;padding:8px 4px"><div style="font-size:14px;font-weight:700" id="pvKcal">0</div><div style="font-size:10px;color:var(--muted);margin-top:2px">ккал</div></div>
         <div style="background:var(--card);border-radius:10px;padding:8px 4px"><div style="font-size:14px;font-weight:700" id="pvProtein">0</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Б</div></div>
         <div style="background:var(--card);border-radius:10px;padding:8px 4px"><div style="font-size:14px;font-weight:700" id="pvFat">0</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Ж</div></div>
@@ -521,7 +486,6 @@
   </div>
 </div>
 
-<!-- EDIT EXTRA MODAL -->
 <div class="overlay" id="editOverlay">
   <div class="sheet">
     <button class="iconbtn close" id="editClose">✕</button>
@@ -537,7 +501,6 @@
   </div>
 </div>
 
-<!-- SETTINGS MODAL -->
 <div class="overlay" id="menuOverlay">
   <div class="sheet">
     <button class="iconbtn close" id="menuClose">✕</button>
@@ -580,30 +543,20 @@
   </div>
 </div>
 
-<!-- CALENDAR MODAL -->
 <div class="overlay" id="calOverlay">
   <div class="sheet">
     <button class="iconbtn close" id="calClose">✕</button>
     <h3>📅 Выбор даты</h3>
-
     <div class="calquick">
       <button id="calToday">Сегодня</button>
       <button id="calYesterday">Вчера</button>
       <button id="calTomorrow">Завтра</button>
     </div>
-
     <div class="calnav">
       <button id="calPrev">‹</button>
       <div class="title" id="calTitle">Сентябрь 2026</div>
       <button id="calNext">›</button>
     </div>
-
-    <div class="yearbar" id="yearBar" style="display:none">
-      <button id="yearPrev">‹</button>
-      <div class="yr" id="yearLabel">2026</div>
-      <button id="yearNext">›</button>
-    </div>
-
     <div class="picker" id="monthPicker"></div>
     <div class="calgrid" id="calGrid"></div>
   </div>
@@ -1151,7 +1104,6 @@ function updateMealWaterRow(mealId){
   }
 }
 
-/* --- делегирование событий --- */
 let mealEventsBound = false;
 function bindMealEvents(){
   if(mealEventsBound) return;
@@ -1161,7 +1113,6 @@ function bindMealEvents(){
   wrap.addEventListener('click', (ev)=>{
     const t = ev.target;
 
-    // Pill (вариант)
     const pill = t.closest('.pill');
     if(pill){
       const mealId = pill.dataset.meal;
@@ -1177,7 +1128,6 @@ function bindMealEvents(){
       return;
     }
 
-    // Кнопки воды (обычный тап)
     const wbtn = t.closest('[data-wa]');
     if(wbtn && !wbtn._longpressed){
       const mealId = wbtn.dataset.wa;
@@ -1192,7 +1142,6 @@ function bindMealEvents(){
     }
     if(wbtn) wbtn._longpressed = false;
 
-    // Галочка продукта
     const item = t.closest('.item');
     if(item){
       if(t.closest('.del')) return;
@@ -1211,7 +1160,6 @@ function bindMealEvents(){
       return;
     }
 
-    // Удалить внеплановое
     const del = t.closest('.extra .del');
     if(del){
       ev.stopPropagation();
@@ -1223,14 +1171,12 @@ function bindMealEvents(){
       return;
     }
 
-    // Редактировать внеплановое
     const edit = t.closest('[data-edit-meal]');
     if(edit){
       openEditExtra(edit.dataset.editMeal, +edit.dataset.editIdx);
       return;
     }
 
-    // + Внеплановая еда
     const addBtn = t.closest('[data-add]');
     if(addBtn){
       openFoodModal(addBtn.dataset.meal);
@@ -1238,7 +1184,6 @@ function bindMealEvents(){
     }
   });
 
-  // Long-press для кнопок воды
   let lpTimer = null, lpInterval = null, lpTarget = null, lpStarted = false;
   const startLP = (el)=>{
     lpStarted = false;
@@ -1275,7 +1220,6 @@ function bindMealEvents(){
   wrap.addEventListener('touchcancel', stopLP, {passive:true});
   wrap.addEventListener('touchmove', stopLP, {passive:true});
 
-  // Для мыши (десктоп)
   wrap.addEventListener('mousedown', (ev)=>{
     const wbtn = ev.target.closest('[data-wa]');
     if(!wbtn) return;
@@ -1409,8 +1353,21 @@ function openEditExtra(mealId, idx){
 function closeEditExtra(){ document.getElementById('editOverlay').classList.remove('on'); editingExtra = null; }
 
 /* ============================================================
-   CHARTS
+   CHARTS — исправленная шкала Y
    ============================================================ */
+function niceStep(range, targetTicks){
+  if(range <= 0) return 1;
+  const rough = range / targetTicks;
+  const pow = Math.pow(10, Math.floor(Math.log10(rough)));
+  const norm = rough / pow;
+  let nice;
+  if(norm < 1.5) nice = 1;
+  else if(norm < 3) nice = 2;
+  else if(norm < 7) nice = 5;
+  else nice = 10;
+  return nice * pow;
+}
+
 function drawLine(canvas, series, color, labels, selectedIdx){
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio||1;
@@ -1419,77 +1376,150 @@ function drawLine(canvas, series, color, labels, selectedIdx){
   ctx.scale(dpr,dpr);
   ctx.clearRect(0,0,w,h);
 
-  const pad = {l:38,r:12,t:12,b:24};
-  const cw = w-pad.l-pad.r, ch = h-pad.t-pad.b;
+  const narrow = w < 380;
+  const pad = {l: narrow ? 34 : 42, r: 12, t: 12, b: 24};
+  const cw = w - pad.l - pad.r;
+  const ch = h - pad.t - pad.b;
   const total = labels.length;
-  const xAt = i => pad.l + (total===1?cw/2 : cw*i/(total-1));
+  const xAt = i => pad.l + (total===1 ? cw/2 : cw*i/(total-1));
 
   const isPoints = series.length && typeof series[0] === 'object';
 
   let max = 0, min = Infinity;
-  if(isPoints){ series.forEach(p=>{ if(p.y>max) max=p.y; if(p.y<min) min=p.y; }); }
-  else { series.forEach(v=>{ if(v>max) max=v; if(v<min) min=v; }); }
-  if(!series.length || max===0){ max = 1; min = 0; }
+  if(isPoints){
+    series.forEach(p=>{ if(p.y>max) max=p.y; if(p.y<min) min=p.y; });
+  } else {
+    series.forEach(v=>{ if(v>max) max=v; if(v<min) min=v; });
+  }
+  if(!series.length || max === 0){ max = 1; min = 0; }
   if(min === Infinity) min = 0;
-  if(min===max){ min = Math.max(0, min-1); max = max+1; }
-  const span = max-min;
-  max = max + span*0.15;
-  min = Math.max(0, min - span*0.15);
+
+  if(isPoints && min > 0){
+    const span0 = max - min;
+    if(span0 === 0){ min = min - 1; max = max + 1; }
+  } else {
+    min = Math.max(0, min);
+  }
+
+  const targetTicks = narrow ? 4 : 5;
+  let span = max - min;
+  if(span <= 0){ span = 1; max = min + span; }
+
+  let step = niceStep(span, targetTicks);
+  let niceMin = Math.floor(min / step) * step;
+  let niceMax = Math.ceil(max / step) * step;
+  if(niceMax === niceMin) niceMax = niceMin + step;
+
+  let ticks = Math.round((niceMax - niceMin) / step);
+
+  while(ticks > targetTicks + 1){
+    step = step * 2;
+    niceMin = Math.floor(min / step) * step;
+    niceMax = Math.ceil(max / step) * step;
+    ticks = Math.round((niceMax - niceMin) / step);
+  }
+  while(ticks < 3 && step > 0.001){
+    step = step / 2;
+    niceMin = Math.floor(min / step) * step;
+    niceMax = Math.ceil(max / step) * step;
+    ticks = Math.round((niceMax - niceMin) / step);
+  }
+  if(ticks < 1) ticks = 1;
+
+  const yMin = niceMin, yMax = niceMax;
+  const yAt = v => pad.t + ch * (1 - (v - yMin) / (yMax - yMin));
+
+  /* Формат подписи Y:
+     - для веса (isPoints) — 1 знак после запятой
+     - для остальных — целые */
+  const decimals = isPoints ? 1 : (Math.abs(step - Math.round(step)) < 0.0001 ? 0 : 1);
 
   ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--line').trim();
-  ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){
-    const y = pad.t + ch*i/4;
-    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
-  }
+  ctx.lineWidth = 1;
   ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
-  ctx.font='10px sans-serif'; ctx.textAlign='right';
-  for(let i=0;i<=4;i++){
-    const val = max - (max-min)*i/4;
-    const y = pad.t + ch*i/4 + 3;
-    ctx.fillText(fmt(val), pad.l-4, y);
+  ctx.font = (narrow ? '9.5px' : '10px') + ' sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+
+  let lastLabel = null;
+  for(let i = 0; i <= ticks; i++){
+    const v = yMin + step * i;
+    const y = yAt(v);
+    if(y < pad.t - 1 || y > pad.t + ch + 1) continue;
+
+    ctx.beginPath();
+    ctx.moveTo(pad.l, y);
+    ctx.lineTo(w - pad.r, y);
+    ctx.stroke();
+
+    const label = v.toFixed(decimals);
+    if(label !== lastLabel){
+      ctx.fillText(label, pad.l - 6, y);
+      lastLabel = label;
+    }
   }
 
   if(selectedIdx !== undefined && selectedIdx >= 0 && selectedIdx < total){
     const x = xAt(selectedIdx);
-    ctx.strokeStyle = color; ctx.globalAlpha = 0.3; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t+ch); ctx.stroke();
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 0.3;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x, pad.t);
+    ctx.lineTo(x, pad.t + ch);
+    ctx.stroke();
     ctx.globalAlpha = 1;
   }
 
-  const yAt = v => pad.t + ch*(1-(v-min)/(max-min));
-
   if(isPoints){
     if(series.length >= 2){
-      ctx.strokeStyle=color; ctx.lineWidth=2;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      series.forEach((p,i)=>{
+      series.forEach((p, i)=>{
         const x = xAt(p.x), y = yAt(p.y);
-        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
       });
       ctx.stroke();
     }
-    ctx.fillStyle=color;
-    series.forEach(p=>{ ctx.beginPath(); ctx.arc(xAt(p.x),yAt(p.y),3.5,0,Math.PI*2); ctx.fill(); });
+    ctx.fillStyle = color;
+    series.forEach(p=>{
+      const x = xAt(p.x), y = yAt(p.y);
+      ctx.beginPath();
+      ctx.arc(x, y, 3.5, 0, Math.PI*2);
+      ctx.fill();
+    });
   } else {
-    ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath();
-    series.forEach((v,i)=>{
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    series.forEach((v, i)=>{
       const x = xAt(i), y = yAt(v);
-      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
     ctx.stroke();
-    ctx.fillStyle=color;
-    series.forEach((v,i)=>{ ctx.beginPath(); ctx.arc(xAt(i),yAt(v), total>60?1.5:2.5,0,Math.PI*2); ctx.fill(); });
+
+    ctx.fillStyle = color;
+    const r = total > 60 ? 1.5 : 2.5;
+    series.forEach((v, i)=>{
+      const x = xAt(i), y = yAt(v);
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI*2);
+      ctx.fill();
+    });
   }
 
   ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
-  ctx.font='9.5px sans-serif'; ctx.textAlign='center';
-  const step = Math.max(1, Math.floor(total/(w<380?4:6)));
-  labels.forEach((l,i)=>{
-    if(i%step!==0 && i!==total-1) return;
-    ctx.fillText(l, xAt(i), h-7);
+  ctx.font = '9.5px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  const stepX = Math.max(1, Math.floor(total / (narrow ? 4 : 6)));
+  labels.forEach((l, i)=>{
+    if(i % stepX !== 0 && i !== total-1) return;
+    ctx.fillText(l, xAt(i), h - 7);
   });
 }
+
 function rangeAround(dateKeyStr, back, forward){
   const out = [];
   for(let i=-back;i<=forward;i++) out.push(addDays(dateKeyStr, i));
@@ -1497,7 +1527,7 @@ function rangeAround(dateKeyStr, back, forward){
 }
 
 /* ============================================================
-   PROGRESS TAB
+   PROGRESS
    ============================================================ */
 function renderProgress(){
   const cur = currentKey();
@@ -1667,9 +1697,7 @@ function renderHeader(){
   document.getElementById('hSub').textContent = (isToday ? 'сегодня' : fmtDateRu(currentKey())) + ' · ' + goal.label.toLowerCase();
 }
 function renderTodayBtn(){
-  const btn = document.getElementById('btnToday');
-  const isToday = currentKey()===todayKey();
-  btn.classList.toggle('hidden', isToday);
+  document.getElementById('btnToday').classList.toggle('hidden', currentKey()===todayKey());
 }
 
 /* ============================================================
@@ -1746,7 +1774,6 @@ function updateBackupInfo(){
     info.textContent = 'Последний бэкап: ' + txt;
     info.className = 'backupinfo' + (days >= 7 ? ' warn' : '');
   }
-  // Кнопка «Откатить на утро»
   const btn = document.getElementById('btnAutoRestore');
   let auto = null;
   try{ auto = JSON.parse(localStorage.getItem(LS_AUTO) || 'null'); }catch(e){}
@@ -1778,7 +1805,6 @@ function importBackup(file){
         'Все текущие данные будут ЗАМЕНЕНЫ. Продолжить?'
       );
       if(!ok) return;
-      // сохраняем текущее перед заменой
       try{ localStorage.setItem(LS_BEFORE_IMPORT, JSON.stringify(state)); }catch(e){}
       state = Object.assign({
         _v: STATE_VERSION,
@@ -1803,7 +1829,7 @@ function importBackup(file){
 function autoSnapshot(){
   try{
     const last = JSON.parse(localStorage.getItem(LS_AUTO) || 'null');
-    if(last && last._date === todayKey()) return; // сегодня уже есть
+    if(last && last._date === todayKey()) return;
     const snap = {
       _app: 'massBuilder',
       _auto: true,
@@ -1885,12 +1911,8 @@ document.getElementById('btnCalendar').onclick = openCalendar;
 document.getElementById('calClose').onclick = closeCalendar;
 document.getElementById('calOverlay').onclick = (e)=>{ if(e.target.id==='calOverlay') closeCalendar(); };
 document.getElementById('calTitle').onclick = ()=>{ monthPickerOpen = !monthPickerOpen; renderCalendar(); };
-document.getElementById('calPrev').onclick = ()=>{
-  calMonth--; if(calMonth<0){ calMonth=11; calYear--; } renderCalendar();
-};
-document.getElementById('calNext').onclick = ()=>{
-  calMonth++; if(calMonth>11){ calMonth=0; calYear++; } renderCalendar();
-};
+document.getElementById('calPrev').onclick = ()=>{ calMonth--; if(calMonth<0){ calMonth=11; calYear--; } renderCalendar(); };
+document.getElementById('calNext').onclick = ()=>{ calMonth++; if(calMonth>11){ calMonth=0; calYear++; } renderCalendar(); };
 document.getElementById('calToday').onclick = ()=>{ activeDate = todayKey(); stripAnchor = todayKey(); closeCalendar(); renderAll(); };
 document.getElementById('calYesterday').onclick = ()=>{ activeDate = addDays(todayKey(),-1); stripAnchor = activeDate; closeCalendar(); renderAll(); };
 document.getElementById('calTomorrow').onclick = ()=>{ activeDate = addDays(todayKey(),1); stripAnchor = activeDate; closeCalendar(); renderAll(); };
@@ -1907,10 +1929,7 @@ document.querySelectorAll('#modeSeg button').forEach(b=>{
 document.querySelectorAll('.tabbar button').forEach(b=>{
   b.onclick = ()=>{
     const tab = b.dataset.tab;
-    if(tab === 'settings'){
-      openMenu();
-      return;
-    }
+    if(tab === 'settings'){ openMenu(); return; }
     document.querySelectorAll('.tabbar button').forEach(x=>x.classList.remove('on'));
     document.querySelectorAll('.tabpage').forEach(x=>x.classList.remove('on'));
     b.classList.add('on');
@@ -1919,7 +1938,6 @@ document.querySelectorAll('.tabbar button').forEach(b=>{
   };
 });
 
-/* FOOD */
 document.getElementById('foodClose').onclick = closeFoodModal;
 document.getElementById('foodOverlay').onclick = (e)=>{ if(e.target.id==='foodOverlay') closeFoodModal(); };
 document.getElementById('foodSearch').oninput = (e)=> renderFoodList(e.target.value);
@@ -1942,7 +1960,6 @@ document.getElementById('cfAdd').onclick = ()=>{
   portionMealId = currentMealId;
 };
 
-/* PORTION */
 document.getElementById('portionClose').onclick = closePortion;
 document.getElementById('portionOverlay').onclick = (e)=>{ if(e.target.id==='portionOverlay') closePortion(); };
 document.getElementById('portionInput').oninput = updatePortionPreview;
@@ -1974,7 +1991,6 @@ document.getElementById('portionAdd').onclick = ()=>{
   toast('Добавлено: '+portionFood.name+' · '+p+' г');
 };
 
-/* EDIT EXTRA */
 document.getElementById('editClose').onclick = closeEditExtra;
 document.getElementById('editOverlay').onclick = (e)=>{ if(e.target.id==='editOverlay') closeEditExtra(); };
 document.getElementById('edSave').onclick = ()=>{
@@ -1994,7 +2010,6 @@ document.getElementById('edSave').onclick = ()=>{
   saveState(); closeEditExtra(); renderAll(); toast('Изменено');
 };
 
-/* SETTINGS */
 document.getElementById('menuClose').onclick = closeMenu;
 document.getElementById('menuOverlay').onclick = (e)=>{ if(e.target.id==='menuOverlay') closeMenu(); };
 document.getElementById('profSave').onclick = ()=>{
@@ -2019,7 +2034,6 @@ document.getElementById('fileInput').onchange = (e)=>{
 };
 document.getElementById('btnAutoRestore').onclick = autoRestore;
 
-/* WEIGHT */
 document.getElementById('btnSaveWeight').onclick = ()=>{
   const cur = currentKey();
   const v = parseFloat(document.getElementById('weightInput').value);
@@ -2033,11 +2047,9 @@ document.getElementById('btnSaveWeight').onclick = ()=>{
   toast(existing ? 'Вес изменён: '+v+' кг' : 'Вес записан: '+v+' кг');
 };
 
-/* ONBOARD */
 document.getElementById('obNext').onclick = nextOnboard;
 document.getElementById('obSkip').onclick = closeOnboard;
 
-/* SWIPE CLOSE */
 document.querySelectorAll('.sheet').forEach(sheet=>{
   let startY = 0, curY = 0, dragging = false;
   sheet.addEventListener('touchstart', (e)=>{
@@ -2060,6 +2072,29 @@ document.querySelectorAll('.sheet').forEach(sheet=>{
       const ov = sheet.closest('.overlay');
       if(ov) ov.classList.remove('on');
     }
+    dragging = false;
+  });
+});
+
+window.addEventListener('beforeunload', ()=>{ saveStateImmediate(); });
+
+/* ============================================================
+   INIT
+   ============================================================ */
+loadState();
+applyTheme();
+stripAnchor = todayKey();
+autoSnapshot();
+renderAll();
+updateBackupInfo();
+
+try{
+  if(!localStorage.getItem(ONBOARD_KEY)) renderOnboard();
+  else document.getElementById('onboard').style.display = 'none';
+}catch(e){ renderOnboard(); }
+</script>
+</body>
+</html>
     dragging = false;
   });
 });
