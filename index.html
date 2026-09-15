@@ -102,17 +102,22 @@
   .item.done .nm{color:var(--muted);text-decoration:line-through}
   .item .kbju{font-size:11px;color:var(--muted);white-space:nowrap}
 
-  .mealwater{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--line);
-    background:var(--card2);cursor:pointer;touch-action:manipulation;transition:.15s}
-  .mealwater:active{background:var(--line)}
-  .mealwater .lbl{font-size:13px;color:var(--muted)}
-  .mealwater .amt{font-size:12.5px;color:var(--muted);margin-left:auto;margin-right:4px}
-  .mealwater .amt b{color:var(--txt);font-size:13.5px;font-weight:700}
-  .mealwater .badge{width:28px;height:28px;border-radius:8px;border:2px solid var(--muted);
-    display:flex;align-items:center;justify-content:center;font-size:12px;flex:none;
-    color:var(--muted);transition:.15s;background:transparent;font-weight:700}
-  .mealwater .badge.part{background:rgba(79,140,255,.15);border-color:var(--accent);color:var(--accent)}
-  .mealwater .badge.full{background:var(--good);border-color:var(--good);color:#fff}
+  /* -------- инлайн-вода -------- */
+  .mealwater{display:flex;align-items:center;gap:6px;padding:8px 10px;border-top:1px solid var(--line);
+    background:var(--card2);flex-wrap:nowrap;overflow:hidden}
+  .mealwater .wico{font-size:15px;flex:none;margin-right:2px}
+  .mealwater .wval{font-size:14px;font-weight:800;color:var(--accent);min-width:54px;text-align:center;
+    font-variant-numeric:tabular-nums;transition:color .15s}
+  .mealwater .wval.full{color:var(--good)}
+  .mealwater .wtgt{font-size:10.5px;color:var(--muted);white-space:nowrap;flex:none}
+  .wbtn{flex:none;background:var(--card);border:1px solid var(--line);color:var(--txt);
+    border-radius:9px;min-width:42px;height:38px;padding:0 8px;font-size:13px;font-weight:700;
+    cursor:pointer;transition:.12s;touch-action:manipulation;display:flex;align-items:center;justify-content:center;
+    white-space:nowrap}
+  .wbtn:active{transform:scale(.94);background:var(--accent);color:#fff;border-color:var(--accent)}
+  .wbtn.plus{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .wbtn.plus:active{background:#3a6fd8}
+  .wbtn.minus{color:var(--txt)}
 
   .mealactions{display:flex;gap:8px;padding:8px 12px 12px}
   .btn{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;
@@ -289,42 +294,6 @@
   .portionresult .pr .v{font-size:14px;font-weight:700}
   .portionresult .pr .l{font-size:10px;color:var(--muted);margin-top:2px}
 
-  .waterbox{background:var(--card2);border:1px solid var(--line);border-radius:12px;
-    padding:16px;margin-bottom:12px}
-  .waternow{text-align:center;margin-bottom:16px}
-  .waterbig{font-size:38px;font-weight:800;line-height:1;color:var(--accent)}
-  .waterbig small{font-size:16px;font-weight:600;color:var(--muted);margin-left:4px}
-  .watertarget{font-size:13px;color:var(--muted);margin-top:6px}
-  .watertarget b{color:var(--txt)}
-  .waterpct{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;
-    background:var(--bg);color:var(--accent);margin-left:6px}
-  .waterprog{height:8px;background:var(--card);border-radius:5px;overflow:hidden;
-    border:1px solid var(--line);margin-top:10px}
-  .waterfill{height:100%;width:0%;border-radius:5px;transition:width .25s,background .25s;background:var(--accent)}
-  .watersec{margin-bottom:14px}
-  .watersec .slabel{font-size:11.5px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;
-    letter-spacing:.4px}
-  .waterchips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-  .waterchips button{background:var(--card);border:1px solid var(--line);color:var(--txt);
-    padding:12px 6px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;
-    transition:.15s;touch-action:manipulation;min-height:48px}
-  .waterchips button:active{transform:scale(.96);background:var(--accent);color:#fff;border-color:var(--accent)}
-  .waterchips button.flash{background:var(--accent);color:#fff;border-color:var(--accent);animation:flashpop .35s}
-  @keyframes flashpop{0%{transform:scale(.9)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
-  .watercustom{display:flex;gap:8px}
-  .watercustom input{flex:1;background:var(--card);border:1px solid var(--line);color:var(--txt);
-    border-radius:10px;padding:12px;font-size:15px;min-height:46px;text-align:center}
-  .watercustom button{background:var(--accent);border:0;color:#fff;border-radius:10px;padding:12px 16px;
-    font-size:14px;font-weight:700;cursor:pointer;transition:.15s;touch-action:manipulation;min-height:46px}
-  .watercustom button:active{transform:scale(.96)}
-  .wateractions{display:flex;gap:8px}
-  .wateractions button{flex:1;background:var(--card);border:1px solid var(--line);color:var(--txt);
-    border-radius:10px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;
-    touch-action:manipulation;min-height:46px}
-  .wateractions button:active{transform:scale(.97);background:var(--line)}
-  .wateractions button.danger{color:var(--bad);border-color:rgba(255,69,58,.4)}
-  .wateractions button.danger.confirm{background:var(--bad);color:#fff;border-color:var(--bad)}
-
   .empty{color:var(--muted);font-size:13px;text-align:center;padding:14px}
   .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));
     transform:translateX(-50%) translateY(20px);
@@ -351,6 +320,18 @@
   .onboard .obbtns .next{background:var(--accent);color:#fff}
   .onboard .obbtns button:active{transform:scale(.97)}
 
+  @media (max-width:400px){
+    .mealwater{gap:4px;padding:8px 8px}
+    .wbtn{min-width:38px;height:36px;font-size:12px;padding:0 6px}
+    .mealwater .wval{min-width:48px;font-size:13px}
+    .mealwater .wtgt{font-size:10px}
+  }
+  @media (max-width:340px){
+    .mealwater{gap:3px;padding:8px 6px}
+    .wbtn{min-width:34px;height:34px;font-size:11.5px;padding:0 5px}
+    .mealwater .wval{min-width:42px;font-size:12.5px}
+    .wbtn[data-delta="-50"]{display:none}
+  }
   @media (max-width:380px){
     .topbar h1{font-size:15px}
     .totals .cell .v{font-size:12.5px}
@@ -395,7 +376,7 @@
       <button class="dayarrow" id="dayNext" aria-label="Следующая неделя">›</button>
     </div>
     <div class="moderow">
-      <div class="label">Сегодня у меня:</div>
+      <div class="label">Режим:</div>
       <div class="seg" id="modeSeg">
         <button data-mode="train" class="on">🏋️ Тренировка</button>
         <button data-mode="rest">😴 Отдых</button>
@@ -426,11 +407,6 @@
         <div class="weightnote" id="weightNote"></div>
       </div>
       <canvas id="chartWeight"></canvas>
-      <div class="legend">
-        <span><i class="l-on"></i>выбрано</span>
-        <span><i class="l-today"></i>сегодня</span>
-        <span><i class="l-has"></i>есть запись</span>
-      </div>
       <div class="hist" id="weightHist"></div>
     </div>
 
@@ -491,7 +467,7 @@
       <div class="pname" id="portionName">—</div>
       <div class="portionrow">
         <button id="portionMinus">−</button>
-        <input type="number" id="portionInput" min="1" step="1" value="100">
+        <input type="number" id="portionInput" min="1" max="5000" step="1" value="100" inputmode="decimal">
         <div class="unit">г</div>
         <button id="portionPlus">+</button>
       </div>
@@ -503,47 +479,6 @@
       </div>
     </div>
     <button class="primary" id="portionAdd">Добавить</button>
-  </div>
-</div>
-
-<!-- WATER MODAL -->
-<div class="overlay" id="waterOverlay">
-  <div class="sheet">
-    <button class="iconbtn close" id="waterClose">✕</button>
-    <h3 id="waterTitle">💧 Вода</h3>
-    <div class="waterbox">
-      <div class="waternow">
-        <div class="waterbig"><span id="waterCurrent">0</span><small>мл</small></div>
-        <div class="watertarget">из <b id="waterTarget">400</b> мл<span class="waterpct" id="waterPct">0%</span></div>
-        <div class="waterprog"><div class="waterfill" id="waterFill"></div></div>
-      </div>
-
-      <div class="watersec">
-        <div class="slabel">Быстро добавить</div>
-        <div class="waterchips" id="waterChips">
-          <button data-add="100">+100</button>
-          <button data-add="150">+150</button>
-          <button data-add="200">+200</button>
-          <button data-add="250">+250</button>
-          <button data-add="300">+300</button>
-          <button data-add="500">+500</button>
-        </div>
-      </div>
-
-      <div class="watersec">
-        <div class="slabel">Свой объём (мл)</div>
-        <div class="watercustom">
-          <input type="number" id="waterInput" placeholder="Например, 180" inputmode="numeric" min="1" step="10">
-          <button id="waterAddBtn">+ Добавить</button>
-        </div>
-      </div>
-
-      <div class="wateractions">
-        <button id="waterFullBtn">Отметить всю порцию</button>
-        <button id="waterClearBtn" class="danger">Очистить</button>
-      </div>
-    </div>
-    <div class="hint">Вода учитывается в миллилитрах. 1 мл ≈ 1 г. Можно добавлять порциями — сколько выпил.</div>
   </div>
 </div>
 
@@ -618,11 +553,6 @@
       </div>
     </div>
     <div class="calgrid" id="calGrid"></div>
-    <div class="legend" style="margin-top:12px">
-      <span><i class="l-on"></i>выбрано</span>
-      <span><i class="l-today"></i>сегодня</span>
-      <span><i class="l-has"></i>есть данные</span>
-    </div>
   </div>
 </div>
 
@@ -634,6 +564,7 @@
    ============================================================ */
 const LS_KEY = 'massBuilderV6';
 const ONBOARD_KEY = 'massBuilderV7_onboarded';
+const STATE_VERSION = '7.6';
 
 const MEALS = [
   { id:'breakfast', emoji:'🍳', title:'Завтрак', time:'07:00', water:400,
@@ -795,6 +726,7 @@ const GOALS = {
    STATE
    ============================================================ */
 let state = {
+  _v: STATE_VERSION,
   meals:{}, extras:{}, water:{}, vitamins:{}, weights:{}, modes:{},
   profile:{ name:'Виталик', height:180, target:75, weight:67.5, goal:'gain', theme:'dark', shift:0 },
   customFoods:[]
@@ -805,12 +737,22 @@ let stripAnchor = null;
 let calYear, calMonth;
 let chartScale = 30;
 let editingExtra = null;
-
 let portionFood = null;
 let portionMealId = null;
 
-let currentWaterMealId = null;
-let clearConfirmTimer = null;
+/* debounce сохранения — A3 */
+let saveTimer = null;
+function scheduleSave(){
+  if(saveTimer) return;
+  saveTimer = setTimeout(()=>{
+    saveTimer = null;
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
+  }, 300);
+}
+function saveStateImmediate(){
+  if(saveTimer){ clearTimeout(saveTimer); saveTimer = null; }
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
+}
 
 function pad2(n){ return String(n).padStart(2,'0'); }
 function dateKey(d){
@@ -837,12 +779,16 @@ function loadState(){
       state = Object.assign(state, p);
       state.profile = Object.assign({name:'Виталик',height:180,target:75,weight:67.5,goal:'gain',theme:'dark',shift:0}, p.profile||{});
       state.customFoods = p.customFoods || [];
-      migrateWater();
+      state._v = STATE_VERSION;
+      const migrated = migrateWater(); /* M6 */
+      if(migrated) saveStateImmediate();
     }
   }catch(e){ console.warn('load fail', e); }
 }
+/* M6: возвращает true если что-то изменилось */
 function migrateWater(){
-  if(!state.water) state.water = {};
+  if(!state.water) { state.water = {}; return false; }
+  let changed = false;
   Object.keys(state.water).forEach(date => {
     const dayW = state.water[date];
     if(!dayW || typeof dayW !== 'object') return;
@@ -852,17 +798,19 @@ function migrateWater(){
       const meal = MEALS.find(m => m.id === mealId);
       if(v === true){
         dayW[mealId] = meal ? meal.water : 0;
+        changed = true;
       } else if(typeof v === 'string' && !isNaN(+v)){
         dayW[mealId] = Math.max(0, Math.round(+v));
+        changed = true;
       } else {
         dayW[mealId] = 0;
+        changed = true;
       }
     });
   });
+  return changed;
 }
-function saveState(){
-  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
-}
+function saveState(){ scheduleSave(); }
 
 /* ============================================================
    HELPERS
@@ -942,19 +890,22 @@ function barColor(p){
   return 'linear-gradient(90deg,#ff453a,#ff8a3d)';
 }
 function fmt(n){ return Math.round(n); }
-function fmt1(n){ return Math.round(n*10)/10; }
 function toast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('on');
-  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),1800);
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),1500);
+}
+function vibrate(ms){
+  if(navigator.vibrate) try{ navigator.vibrate(ms||10); }catch(_){}
 }
 function mealTime(meal){
   const shift = state.profile.shift || 0;
   const [h,m] = meal.time.split(':').map(Number);
   let total = h*60 + m + shift;
+  const nextDay = total >= 1440;
   total = ((total % 1440) + 1440) % 1440;
   const hh = Math.floor(total/60), mm = total%60;
-  return pad2(hh)+':'+pad2(mm);
+  return pad2(hh)+':'+pad2(mm) + (nextDay ? ' (+1)' : '');
 }
 function latestWeight(){
   const keys = Object.keys(state.weights).sort();
@@ -1007,7 +958,7 @@ function dayHasData(key){
 }
 
 /* ============================================================
-   BARS
+   BARS / TOTALS
    ============================================================ */
 function renderBars(){
   const date = currentKey();
@@ -1030,10 +981,26 @@ function renderBars(){
     </div>`;
   }).join('');
 }
-/* обновляем только полосы и итоги — без пересборки приёмов */
 function renderBarsAndTotals(){
   renderBars();
   renderTotals();
+}
+/* A1: обновление одной карточки приёмов без renderAll */
+function updateMealKcal(mealId){
+  const meal = MEALS.find(m=>m.id===mealId);
+  if(!meal) return;
+  const card = document.querySelector(`.meal[data-meal-id="${mealId}"]`);
+  if(!card) return;
+  const md = getMealData(currentKey(), mealId);
+  const active = md._activeVariant;
+  const checked = md[active] || {};
+  const extras = getExtras(currentKey(), mealId);
+  const v = meal.variants.find(x=>x.id===active);
+  let k=0,p=0,f=0,c=0;
+  if(v) v.items.forEach(it=>{ if(checked[it.id]){ k+=it.k;p+=it.p;f+=it.f;c+=it.c; } });
+  extras.forEach(e=>{ k+=e.kcal||0;p+=e.protein||0;f+=e.fat||0;c+=e.carbs||0; });
+  const right = card.querySelector('.mealhead .right');
+  if(right) right.innerHTML = `${fmt(k)} ккал<br>Б ${fmt(p)} · Ж ${fmt(f)} · У ${fmt(c)}`;
 }
 
 /* ============================================================
@@ -1055,10 +1022,8 @@ function renderMeals(){
     v.items.forEach(it=>{ if(checked[it.id]){ k+=it.k;p+=it.p;f+=it.f;c+=it.c; } });
     extras.forEach(e=>{ k+=e.kcal||0;p+=e.protein||0;f+=e.fat||0;c+=e.carbs||0; });
 
-    let wStatus, wBadge;
-    if(waterMl <= 0){ wStatus = 'none'; wBadge = '+'; }
-    else if(waterMl >= meal.water){ wStatus = 'full'; wBadge = '✓'; }
-    else { wStatus = 'part'; wBadge = '½'; }
+    const full = waterMl >= meal.water;
+    const over = waterMl > meal.water;
 
     const card = document.createElement('div');
     card.className='meal';
@@ -1090,10 +1055,14 @@ function renderMeals(){
           <button class="del" data-meal="${meal.id}" data-idx="${i}">✕</button>
         </div>`).join('')}
       </div>`:''}
-      <div class="mealwater" data-water-open="${meal.id}">
-        <div class="lbl">💧 Вода</div>
-        <div class="amt"><b>${waterMl}</b> / ${meal.water} мл</div>
-        <div class="badge ${wStatus}">${wBadge}</div>
+      <div class="mealwater">
+        <div class="wico">💧</div>
+        <button class="wbtn minus" data-wa="${meal.id}" data-delta="-100" aria-label="−100 мл">−100</button>
+        <button class="wbtn minus" data-wa="${meal.id}" data-delta="-50" aria-label="−50 мл">−50</button>
+        <div class="wval ${full?'full':''}">${waterMl}${over?' (+'+(waterMl-meal.water)+')':''} мл</div>
+        <button class="wbtn plus" data-wa="${meal.id}" data-delta="+100" aria-label="+100 мл">+100</button>
+        <button class="wbtn plus" data-wa="${meal.id}" data-delta="+250" aria-label="+250 мл">+250</button>
+        <div class="wtgt">/ ${meal.water}</div>
       </div>
       <div class="mealactions">
         <button class="btn add" data-meal="${meal.id}" data-add="1">+ Внеплановая еда</button>
@@ -1103,30 +1072,37 @@ function renderMeals(){
   });
   bindMealEvents();
 }
-
-/* обновляем одну строку воды без пересборки всего списка */
 function updateMealWaterRow(mealId){
   const meal = MEALS.find(m => m.id === mealId);
   if(!meal) return;
   const card = document.querySelector(`.meal[data-meal-id="${mealId}"]`);
   if(!card) return;
   const waterMl = getWater(currentKey(), mealId);
-  let wStatus, wBadge;
-  if(waterMl <= 0){ wStatus = 'none'; wBadge = '+'; }
-  else if(waterMl >= meal.water){ wStatus = 'full'; wBadge = '✓'; }
-  else { wStatus = 'part'; wBadge = '½'; }
-  const amt = card.querySelector('.mealwater .amt');
-  const badge = card.querySelector('.mealwater .badge');
-  if(amt) amt.innerHTML = `<b>${waterMl}</b> / ${meal.water} мл`;
-  if(badge){ badge.className = 'badge ' + wStatus; badge.textContent = wBadge; }
+  const full = waterMl >= meal.water;
+  const over = waterMl > meal.water;
+  const val = card.querySelector('.mealwater .wval');
+  if(val){
+    val.textContent = waterMl + (over ? ' (+'+(waterMl-meal.water)+')' : '') + ' мл';
+    val.classList.toggle('full', full);
+  }
 }
 
+/* A1/A2: делегирование событий — один слушатель на #mealsWrap */
+let mealEventsBound = false;
 function bindMealEvents(){
-  document.querySelectorAll('.pill').forEach(el=>{
-    el.onclick = ()=>{
+  if(mealEventsBound) return;
+  mealEventsBound = true;
+  const wrap = document.getElementById('mealsWrap');
+
+  wrap.addEventListener('click', (ev)=>{
+    const t = ev.target;
+
+    /* pill (вариант) */
+    const pill = t.closest('.pill');
+    if(pill){
+      const mealId = pill.dataset.meal;
+      const v = pill.dataset.variant;
       const date = currentKey();
-      const mealId = el.dataset.meal;
-      const v = el.dataset.variant;
       const md = getMealData(date, mealId);
       if(md._activeVariant === v) return;
       MEALS.find(x=>x.id===mealId).variants.forEach(vr=>{ md[vr.id] = {}; });
@@ -1134,43 +1110,69 @@ function bindMealEvents(){
       saveState(); renderAll();
       const mealName = MEALS.find(x=>x.id===mealId).variants.find(x=>x.id===v).name;
       toast('Вариант: '+mealName+' · галочки сброшены');
-    };
-  });
-  document.querySelectorAll('.item').forEach(el=>{
-    el.onclick = (ev)=>{
-      if(ev.target.closest('.del')) return;
+      return;
+    }
+
+    /* кнопки воды */
+    const wbtn = t.closest('[data-wa]');
+    if(wbtn){
+      ev.stopPropagation();
+      const mealId = wbtn.dataset.wa;
+      const delta = +wbtn.dataset.delta;
+      const cur = getWater(currentKey(), mealId);
+      const next = Math.max(0, cur + delta);
+      setWater(currentKey(), mealId, next);
+      updateMealWaterRow(mealId);
+      renderBarsAndTotals();
+      vibrate(8);
+      return;
+    }
+
+    /* галочка продукта */
+    const item = t.closest('.item');
+    if(item){
+      if(t.closest('.del')) return;
       const date = currentKey();
-      const mealId = el.dataset.meal;
-      const itemId = el.dataset.item;
+      const mealId = item.dataset.meal;
+      const itemId = item.dataset.item;
       const md = getMealData(date, mealId);
       const v = md._activeVariant;
       if(!md[v]) md[v]={};
       md[v][itemId] = !md[v][itemId];
-      saveState(); renderAll();
-    };
-  });
-  document.querySelectorAll('[data-water-open]').forEach(el=>{
-    el.onclick = ()=> openWaterModal(el.dataset.waterOpen);
-  });
-  document.querySelectorAll('[data-add]').forEach(el=>{
-    el.onclick = ()=> openFoodModal(el.dataset.meal);
-  });
-  document.querySelectorAll('.extra .del').forEach(el=>{
-    el.onclick = (ev)=>{
+      /* A1: локальное обновление без renderAll */
+      item.classList.toggle('done', !!md[v][itemId]);
+      saveState();
+      updateMealKcal(mealId);
+      renderBarsAndTotals();
+      vibrate(6);
+      return;
+    }
+
+    /* удалить внеплановое */
+    const del = t.closest('.extra .del');
+    if(del){
       ev.stopPropagation();
       const date = currentKey();
-      const mealId = el.dataset.meal;
-      const idx = +el.dataset.idx;
+      const mealId = del.dataset.meal;
+      const idx = +del.dataset.idx;
       const arr = getExtras(date, mealId);
       arr.splice(idx,1); saveState(); renderAll();
-    };
-  });
-  document.querySelectorAll('[data-edit-meal]').forEach(el=>{
-    el.onclick = ()=>{
-      const mealId = el.dataset.editMeal;
-      const idx = +el.dataset.editIdx;
-      openEditExtra(mealId, idx);
-    };
+      return;
+    }
+
+    /* редактировать внеплановое */
+    const edit = t.closest('[data-edit-meal]');
+    if(edit){
+      openEditExtra(edit.dataset.editMeal, +edit.dataset.editIdx);
+      return;
+    }
+
+    /* + Внеплановая еда */
+    const addBtn = t.closest('[data-add]');
+    if(addBtn){
+      openFoodModal(addBtn.dataset.meal);
+      return;
+    }
   });
 }
 
@@ -1232,7 +1234,7 @@ function renderMode(){
   });
   const isToday = date===todayKey();
   document.querySelector('#modeSeg').parentElement.querySelector('.label').textContent =
-    isToday ? 'Сегодня у меня:' : 'Режим дня:';
+    isToday ? 'Режим:' : 'Режим ('+date+'):';
 }
 
 /* ============================================================
@@ -1268,7 +1270,6 @@ function renderFoodList(q){
     };
   });
 }
-
 function openPortion(food){
   portionFood = food;
   portionMealId = currentMealId;
@@ -1284,7 +1285,9 @@ function closePortion(){
 }
 function updatePortionPreview(){
   if(!portionFood) return;
-  const p = Math.max(1, +document.getElementById('portionInput').value || 100);
+  let p = +document.getElementById('portionInput').value || 100;
+  if(p > 5000) p = 5000;
+  if(p < 1) p = 1;
   const coef = p/100;
   document.getElementById('pvKcal').textContent = fmt(portionFood.kcal * coef);
   document.getElementById('pvProtein').textContent = fmt(portionFood.protein * coef);
@@ -1303,60 +1306,6 @@ function addExtra(mealId, name, kcal, protein, fat, carbs, portion){
     portion: portion ? Math.round(portion) : null
   });
   saveState(); renderAll();
-}
-
-/* ============================================================
-   WATER MODAL
-   ============================================================ */
-function openWaterModal(mealId){
-  currentWaterMealId = mealId;
-  const meal = MEALS.find(m => m.id === mealId);
-  document.getElementById('waterTitle').textContent = '💧 Вода · ' + meal.title;
-  document.getElementById('waterTarget').textContent = meal.water;
-  document.getElementById('waterInput').value = '';
-  resetClearConfirm();
-  updateWaterModal();
-  document.getElementById('waterOverlay').classList.add('on');
-}
-function closeWaterModal(){
-  document.getElementById('waterOverlay').classList.remove('on');
-  currentWaterMealId = null;
-  resetClearConfirm();
-}
-function updateWaterModal(){
-  if(!currentWaterMealId) return;
-  const meal = MEALS.find(m => m.id === currentWaterMealId);
-  const cur = getWater(currentKey(), currentWaterMealId);
-  document.getElementById('waterCurrent').textContent = cur;
-  const p = Math.min(100, Math.round(cur / meal.water * 100));
-  document.getElementById('waterPct').textContent = p + '%';
-  const fill = document.getElementById('waterFill');
-  fill.style.width = p + '%';
-  if(p >= 100) fill.style.background = 'var(--good)';
-  else if(p >= 50) fill.style.background = '#2aa7ff';
-  else fill.style.background = 'var(--accent)';
-}
-function resetClearConfirm(){
-  const btn = document.getElementById('waterClearBtn');
-  btn.classList.remove('confirm');
-  btn.textContent = 'Очистить';
-  if(clearConfirmTimer){ clearTimeout(clearConfirmTimer); clearConfirmTimer = null; }
-}
-function waterAdd(amount){
-  if(!currentWaterMealId) return;
-  const cur = getWater(currentKey(), currentWaterMealId);
-  setWater(currentKey(), currentWaterMealId, cur + amount);
-  updateWaterModal();
-  updateMealWaterRow(currentWaterMealId);
-  renderBarsAndTotals();
-}
-/* debounce для быстрых тапов */
-function debounceRenderBarsAndTotals(){
-  if(debounceRenderBarsAndTotals._t) return;
-  debounceRenderBarsAndTotals._t = setTimeout(()=>{
-    debounceRenderBarsAndTotals._t = null;
-    renderBarsAndTotals();
-  }, 60);
 }
 
 /* ============================================================
@@ -1381,14 +1330,10 @@ function closeEditExtra(){
 }
 
 /* ============================================================
-   CHARTS
+   CHARTS (A5: объединены)
    ============================================================ */
-function rangeAround(dateKeyStr, back, forward){
-  const out = [];
-  for(let i=-back;i<=forward;i++) out.push(addDays(dateKeyStr, i));
-  return out;
-}
-function drawPointsLine(canvas, points, color, labels, selectedIdx){
+function drawLine(canvas, series, color, labels, selectedIdx, skipZero){
+  /* series: массив {x, y} или просто массив чисел */
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio||1;
   const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -1401,9 +1346,16 @@ function drawPointsLine(canvas, points, color, labels, selectedIdx){
   const total = labels.length;
   const xAt = i => pad.l + (total===1?cw/2 : cw*i/(total-1));
 
+  const isPoints = series.length && typeof series[0] === 'object';
+
   let max = 0, min = Infinity;
-  points.forEach(p=>{ if(p.y>max) max=p.y; if(p.y<min) min=p.y; });
-  if(!points.length){ max = 1; min = 0; }
+  if(isPoints){
+    series.forEach(p=>{ if(p.y>max) max=p.y; if(p.y<min) min=p.y; });
+  } else {
+    series.forEach(v=>{ if(v>max) max=v; if(v<min) min=v; });
+  }
+  if(!series.length || max===0){ max = 1; min = 0; }
+  if(min === Infinity) min = 0;
   if(min===max){ min = Math.max(0, min-1); max = max+1; }
   const span = max-min;
   max = max + span*0.15;
@@ -1430,20 +1382,34 @@ function drawPointsLine(canvas, points, color, labels, selectedIdx){
     ctx.globalAlpha = 1;
   }
 
-  if(points.length >= 2){
-    ctx.strokeStyle=color; ctx.lineWidth=2;
-    ctx.beginPath();
-    points.forEach((p,i)=>{
-      const x = xAt(p.x), y = pad.t + ch*(1-(p.y-min)/(max-min));
+  const yAt = v => pad.t + ch*(1-(v-min)/(max-min));
+
+  if(isPoints){
+    if(series.length >= 2){
+      ctx.strokeStyle=color; ctx.lineWidth=2;
+      ctx.beginPath();
+      series.forEach((p,i)=>{
+        const x = xAt(p.x), y = yAt(p.y);
+        if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+    }
+    ctx.fillStyle=color;
+    series.forEach(p=>{
+      ctx.beginPath(); ctx.arc(xAt(p.x),yAt(p.y),3.5,0,Math.PI*2); ctx.fill();
+    });
+  } else {
+    ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath();
+    series.forEach((v,i)=>{
+      const x = xAt(i), y = yAt(v);
       if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
     });
     ctx.stroke();
+    ctx.fillStyle=color;
+    series.forEach((v,i)=>{
+      ctx.beginPath(); ctx.arc(xAt(i),yAt(v), total>60?1.5:2.5,0,Math.PI*2); ctx.fill();
+    });
   }
-  ctx.fillStyle=color;
-  points.forEach(p=>{
-    const x = xAt(p.x), y = pad.t + ch*(1-(p.y-min)/(max-min));
-    ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2); ctx.fill();
-  });
 
   ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
   ctx.font='9.5px sans-serif'; ctx.textAlign='center';
@@ -1453,62 +1419,11 @@ function drawPointsLine(canvas, points, color, labels, selectedIdx){
     ctx.fillText(l, xAt(i), h-7);
   });
 }
-function drawFullLine(canvas, values, color, labels, selectedIdx){
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio||1;
-  const w = canvas.clientWidth, h = canvas.clientHeight;
-  canvas.width = w*dpr; canvas.height = h*dpr;
-  ctx.scale(dpr,dpr);
-  ctx.clearRect(0,0,w,h);
 
-  const pad = {l:38,r:12,t:12,b:24};
-  const cw = w-pad.l-pad.r, ch = h-pad.t-pad.b;
-  const max = Math.max(...values, 1)*1.15;
-  const min = 0;
-  const total = labels.length;
-  const xAt = i => pad.l + (total===1?cw/2 : cw*i/(total-1));
-
-  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--line').trim();
-  ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){
-    const y = pad.t + ch*i/4;
-    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
-  }
-  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
-  ctx.font='10px sans-serif'; ctx.textAlign='right';
-  for(let i=0;i<=4;i++){
-    const val = max - (max-min)*i/4;
-    const y = pad.t + ch*i/4 + 3;
-    ctx.fillText(fmt(val), pad.l-4, y);
-  }
-
-  if(selectedIdx !== undefined && selectedIdx >= 0 && selectedIdx < total){
-    const x = xAt(selectedIdx);
-    ctx.strokeStyle = color; ctx.globalAlpha = 0.3; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t+ch); ctx.stroke();
-    ctx.globalAlpha = 1;
-  }
-
-  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.beginPath();
-  values.forEach((v,i)=>{
-    const x = xAt(i), y = pad.t + ch*(1-(v-min)/(max-min));
-    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-  });
-  ctx.stroke();
-
-  ctx.fillStyle=color;
-  values.forEach((v,i)=>{
-    const x = xAt(i), y = pad.t + ch*(1-(v-min)/(max-min));
-    ctx.beginPath(); ctx.arc(x,y, total>60?1.5:2.5,0,Math.PI*2); ctx.fill();
-  });
-
-  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
-  ctx.font='9.5px sans-serif'; ctx.textAlign='center';
-  const step = Math.max(1, Math.floor(total/(w<380?4:6)));
-  labels.forEach((l,i)=>{
-    if(i%step!==0 && i!==total-1) return;
-    ctx.fillText(l, xAt(i), h-7);
-  });
+function rangeAround(dateKeyStr, back, forward){
+  const out = [];
+  for(let i=-back;i<=forward;i++) out.push(addDays(dateKeyStr, i));
+  return out;
 }
 
 /* ============================================================
@@ -1557,7 +1472,7 @@ function renderProgress(){
     if(k===cur) selIdx = i;
     if(state.weights[k]) wPoints.push({x:i, y:state.weights[k]});
   });
-  drawPointsLine(document.getElementById('chartWeight'), wPoints, '#4f8cff', wLabels, selIdx);
+  drawLine(document.getElementById('chartWeight'), wPoints, '#4f8cff', wLabels, selIdx, true);
 
   const hist = document.getElementById('weightHist');
   const entries = Object.keys(state.weights).sort().reverse().slice(0,10);
@@ -1593,9 +1508,17 @@ function renderProgress(){
   document.getElementById('kcalHint').textContent = chartScale + ' дней · по дням';
   document.getElementById('proteinHint').textContent = chartScale + ' дней · по дням';
 
-  drawFullLine(document.getElementById('chartKcal'), kcals, '#ff8a3d', labels, selIdxK);
-  drawFullLine(document.getElementById('chartProtein'), proteins, '#35c759', labels, selIdxK);
+  drawLine(document.getElementById('chartKcal'), kcals, '#ff8a3d', labels, selIdxK, false);
+  drawLine(document.getElementById('chartProtein'), proteins, '#35c759', labels, selIdxK, false);
 }
+
+/* D10: перерисовка графиков при повороте / resize */
+let resizeTimer = null;
+window.addEventListener('resize', ()=>{
+  if(!document.getElementById('tabProgress').classList.contains('on')) return;
+  if(resizeTimer) clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(()=>{ renderProgress(); }, 200);
+});
 
 /* ============================================================
    CALENDAR
@@ -1675,7 +1598,7 @@ function renderHeader(){
 const OB_STEPS = [
   {icon:'💪', title:'Набор массы', text:'Это твой личный трекер питания. Отмечай съеденное — приложение считает калории, белки, жиры, углеводы и воду за день.'},
   {icon:'✅', title:'Как отмечать', text:'Нажми на строку продукта — появится галочка. Внизу приёма есть «+ Внеплановая еда», там же указываешь вес порции.'},
-  {icon:'💧', title:'Вода и прогресс', text:'Воду добавляй в любом объёме — тап по строке воды в приёме. Графики веса, калорий и белка — во вкладке «Прогресс».'}
+  {icon:'💧', title:'Вода и прогресс', text:'В строке воды — кнопки −100 / −50 / +100 / +250 мл. Вода суммируется по всем приёмам. Графики — во вкладке «Прогресс».'}
 ];
 let obIdx = 0;
 function renderOnboard(){
@@ -1773,6 +1696,9 @@ document.getElementById('cfAdd').onclick = ()=>{
 document.getElementById('portionClose').onclick = closePortion;
 document.getElementById('portionOverlay').onclick = (e)=>{ if(e.target.id==='portionOverlay') closePortion(); };
 document.getElementById('portionInput').oninput = updatePortionPreview;
+document.getElementById('portionInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('portionAdd').click(); }
+});
 document.getElementById('portionPlus').onclick = ()=>{
   const inp = document.getElementById('portionInput');
   const step = (portionFood && portionFood.small) ? 10 : 50;
@@ -1787,7 +1713,8 @@ document.getElementById('portionMinus').onclick = ()=>{
 };
 document.getElementById('portionAdd').onclick = ()=>{
   if(!portionFood) return;
-  const p = Math.max(1, +document.getElementById('portionInput').value || 100);
+  let p = Math.max(1, +document.getElementById('portionInput').value || 100);
+  if(p > 5000) p = 5000;
   const coef = p/100;
   addExtra(
     portionMealId,
@@ -1801,67 +1728,6 @@ document.getElementById('portionAdd').onclick = ()=>{
   closePortion();
   closeFoodModal();
   toast('Добавлено: '+portionFood.name+' · '+p+' г');
-};
-
-/* WATER MODAL */
-document.getElementById('waterClose').onclick = closeWaterModal;
-document.getElementById('waterOverlay').onclick = (e)=>{ if(e.target.id==='waterOverlay') closeWaterModal(); };
-document.querySelectorAll('.waterchips button').forEach(b=>{
-  b.onclick = ()=>{
-    if(!currentWaterMealId) return;
-    const add = +b.dataset.add;
-    const cur = getWater(currentKey(), currentWaterMealId);
-    waterAdd(add);
-    const newVal = cur + add;
-    // визуальный отклик на чипсе
-    b.classList.add('flash');
-    setTimeout(()=>b.classList.remove('flash'), 350);
-    toast('+'+add+' мл → '+newVal+' мл');
-  };
-});
-document.getElementById('waterAddBtn').onclick = ()=>{
-  if(!currentWaterMealId) return;
-  const v = +document.getElementById('waterInput').value;
-  if(!v || v <= 0){ toast('Введи объём'); return; }
-  const cur = getWater(currentKey(), currentWaterMealId);
-  waterAdd(v);
-  document.getElementById('waterInput').value = '';
-  toast('+'+v+' мл → '+(cur+v)+' мл');
-};
-document.getElementById('waterInput').addEventListener('keydown', (e)=>{
-  if(e.key === 'Enter') document.getElementById('waterAddBtn').click();
-});
-document.getElementById('waterInput').addEventListener('focus', (e)=>{
-  // подскроллить к полю при открытии клавиатуры на мобильном
-  setTimeout(()=>{
-    try{ e.target.scrollIntoView({block:'center', behavior:'smooth'}); }catch(_){}
-  }, 300);
-});
-document.getElementById('waterFullBtn').onclick = ()=>{
-  if(!currentWaterMealId) return;
-  const meal = MEALS.find(m => m.id === currentWaterMealId);
-  setWater(currentKey(), currentWaterMealId, meal.water);
-  updateWaterModal();
-  updateMealWaterRow(currentWaterMealId);
-  renderBarsAndTotals();
-  toast('Отмечено '+meal.water+' мл');
-};
-document.getElementById('waterClearBtn').onclick = ()=>{
-  if(!currentWaterMealId) return;
-  const btn = document.getElementById('waterClearBtn');
-  if(!btn.classList.contains('confirm')){
-    btn.classList.add('confirm');
-    btn.textContent = 'Точно? Нажми ещё';
-    if(clearConfirmTimer) clearTimeout(clearConfirmTimer);
-    clearConfirmTimer = setTimeout(()=>{ resetClearConfirm(); }, 2500);
-    return;
-  }
-  setWater(currentKey(), currentWaterMealId, 0);
-  updateWaterModal();
-  updateMealWaterRow(currentWaterMealId);
-  renderBarsAndTotals();
-  resetClearConfirm();
-  toast('Вода очищена');
 };
 
 /* EDIT EXTRA */
@@ -1955,6 +1821,9 @@ document.querySelectorAll('.sheet').forEach(sheet=>{
     dragging = false;
   });
 });
+
+/* Сохранить при закрытии вкладки */
+window.addEventListener('beforeunload', ()=>{ saveStateImmediate(); });
 
 /* ============================================================
    INIT
