@@ -1,7 +1,7 @@
 {
-  "name": "Mass Builder — План питания",
-  "short_name": "Mass Builder",
-  "description": "План питания для набора мышечной массы",
+  "name": "Набор массы для Витальки",
+  "short_name": "Набор массы",
+  "description": "Персональный план питания для набора мышечной массы",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#12151c",
