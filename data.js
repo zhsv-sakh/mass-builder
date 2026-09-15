@@ -152,7 +152,43 @@ const BASE_FOODS = [
   {name:'Кофе без сахара', kcal:2, protein:0.2, fat:0, carbs:0, defaultPortion:200},
   {name:'Кофе с молоком', kcal:20, protein:1, fat:1, carbs:2, defaultPortion:200},
   {name:'Сок апельсиновый', kcal:45, protein:0.7, fat:0.2, carbs:10, defaultPortion:200},
-  {name:'Компот', kcal:30, protein:0.1, fat:0, carbs:7.5, defaultPortion:200}
+  {name:'Компот', kcal:30, protein:0.1, fat:0, carbs:7.5, defaultPortion:200},
+
+  /* --- Топ-20 дополнительных продуктов --- */
+  /* Овощи */
+  {name:'Помидор', kcal:20, protein:1, fat:0.2, carbs:4, defaultPortion:150},
+  {name:'Огурец', kcal:15, protein:0.8, fat:0.1, carbs:3, defaultPortion:150},
+  {name:'Лук репчатый', kcal:40, protein:1.4, fat:0, carbs:9, defaultPortion:50, small:true},
+  {name:'Морковь', kcal:35, protein:1.3, fat:0.1, carbs:7, defaultPortion:100},
+  {name:'Капуста', kcal:25, protein:1.3, fat:0.1, carbs:5, defaultPortion:150},
+  {name:'Перец болгарский', kcal:27, protein:1, fat:0, carbs:5, defaultPortion:100},
+  {name:'Оливки / маслины', kcal:115, protein:0.8, fat:10, carbs:6, defaultPortion:30, small:true},
+
+  /* Фрукты */
+  {name:'Апельсин', kcal:47, protein:0.9, fat:0.1, carbs:12, defaultPortion:150},
+  {name:'Мандарин', kcal:53, protein:0.8, fat:0.3, carbs:13, defaultPortion:100},
+  {name:'Виноград', kcal:69, protein:0.6, fat:0.2, carbs:17, defaultPortion:150},
+  {name:'Груша', kcal:57, protein:0.4, fat:0.3, carbs:15, defaultPortion:150},
+  {name:'Киви', kcal:61, protein:1.1, fat:0.5, carbs:11, defaultPortion:100},
+
+  /* Белки */
+  {name:'Лосось / семга', kcal:200, protein:22, fat:13, carbs:0, defaultPortion:150},
+  {name:'Скумбрия', kcal:190, protein:18, fat:13, carbs:0, defaultPortion:150},
+  {name:'Креветки', kcal:90, protein:18, fat:1, carbs:1, defaultPortion:150},
+  {name:'Морской гребешок', kcal:88, protein:17, fat:1, carbs:3, defaultPortion:150},
+  {name:'Морской краб (мясо)', kcal:87, protein:18, fat:1, carbs:0, defaultPortion:150},
+  {name:'Икра лосося', kcal:250, protein:32, fat:13, carbs:0, defaultPortion:30, small:true},
+  {name:'Икра минтая', kcal:130, protein:28, fat:2, carbs:0, defaultPortion:30, small:true},
+  {name:'Печень минтая', kcal:475, protein:6, fat:50, carbs:3, defaultPortion:50, small:true},
+
+  /* Гарниры */
+  {name:'Булгур (сухой)', kcal:340, protein:12, fat:1.5, carbs:76, defaultPortion:80},
+  {name:'Хлеб ржаной', kcal:210, protein:7, fat:3, carbs:40, defaultPortion:30, small:true},
+
+  /* Жиры и соусы */
+  {name:'Сливочное масло', kcal:720, protein:0.8, fat:82, carbs:0.8, defaultPortion:10, small:true},
+  {name:'Майонез', kcal:680, protein:1, fat:75, carbs:3, defaultPortion:15, small:true},
+  {name:'Кетчуп', kcal:100, protein:1, fat:0, carbs:25, defaultPortion:20, small:true}
 ];
 
 const GOALS = {

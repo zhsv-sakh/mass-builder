@@ -10,7 +10,7 @@ const LS_LAST_BACKUP = 'massBuilderV6_lastBackup';
 const LS_AUTO = 'massBuilderV6_autobackup';
 const LS_BEFORE_IMPORT = 'massBuilderV6_before_import';
 const ONBOARD_KEY = 'massBuilderV7_onboarded';
-const STATE_VERSION = '7.7';
+const STATE_VERSION = '7.8';
 
 const MONTHS_SHORT = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
 const MONTHS_FULL  = ['Январь','Февраль','Март','Апрель','Май','Июнь',
@@ -366,12 +366,16 @@ function renderMeals(){
         </div>`).join('')}
       </div>`:''}
       <div class="mealwater">
-        <button class="wbtn" data-wa="${meal.id}" data-delta="-50" aria-label="−50 мл">−</button>
+        <div class="wico">💧</div>
+        <div class="wlbl">Вода</div>
         <div class="wval ${full?'full':''}">
-          ${waterMl} / ${meal.water} мл
+          <b>${waterMl}</b> / ${meal.water} мл
           ${over ? `<small>+${waterMl-meal.water} сверх</small>` : ''}
         </div>
-        <button class="wbtn plus" data-wa="${meal.id}" data-delta="+50" aria-label="+50 мл">+</button>
+        <div class="wbtns">
+          <button class="wbtn" data-wa="${meal.id}" data-delta="-200" aria-label="−200 мл">−</button>
+          <button class="wbtn plus" data-wa="${meal.id}" data-delta="+200" aria-label="+200 мл">+</button>
+        </div>
       </div>
       <div class="mealactions">
         <button class="btn add" data-meal="${meal.id}" data-add="1">+ Внеплановая еда</button>
@@ -391,7 +395,8 @@ function updateMealWaterRow(mealId){
   const val = card.querySelector('.mealwater .wval');
   if(val){
     val.classList.toggle('full', full);
-    val.innerHTML = `${waterMl} / ${meal.water} мл` + (over ? `<small>+${waterMl-meal.water} сверх</small>` : '');
+    val.innerHTML = `<b>${waterMl}</b> / ${meal.water} мл` +
+      (over ? `<small>+${waterMl-meal.water} сверх</small>` : '');
   }
 }
 
@@ -771,6 +776,66 @@ function renderProgress(){
 
   drawLine(document.getElementById('chartKcal'), kcals, '#ff8a3d', labels, selIdxK);
   drawLine(document.getElementById('chartProtein'), proteins, '#35c759', labels, selIdxK);
+
+  renderTrainings();
+}
+
+/* ============================================================
+   ТРЕНИРОВКИ — компактный счётчик
+   ============================================================ */
+function renderTrainings(){
+  const cur = currentKey();
+  const curDate = parseKey(cur);
+  const year = curDate.getFullYear();
+  const month = curDate.getMonth();
+
+  document.getElementById('trainMonth').textContent =
+    MONTHS_FULL[month] + ' ' + year;
+
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const today = todayKey();
+
+  let train = 0, rest = 0, empty = 0;
+
+  for(let d=1; d<=daysInMonth; d++){
+    const key = year+'-'+pad2(month+1)+'-'+pad2(d);
+    if(key > today) continue;
+
+    const mode = state.modes[key];
+    const hasData = dayHasData(key);
+
+    if(mode === 'train') train++;
+    else if(mode === 'rest') rest++;
+    else if(hasData) rest++;
+    else empty++;
+  }
+
+  const totalPast = train + rest + empty;
+  const percent = totalPast > 0 ? Math.round(train / totalPast * 100) : 0;
+
+  document.getElementById('trainStats').innerHTML = `
+    <div class="ts train">
+      <div class="v">${train}</div>
+      <div class="l">тренировок</div>
+    </div>
+    <div class="ts rest">
+      <div class="v">${rest}</div>
+      <div class="l">отдых</div>
+    </div>
+    <div class="ts empty">
+      <div class="v">${empty}</div>
+      <div class="l">пусто</div>
+    </div>
+  `;
+
+  const statsBox = document.getElementById('trainStats');
+  let pctRow = statsBox.parentElement.querySelector('.trainpercent');
+  if(!pctRow){
+    pctRow = document.createElement('div');
+    pctRow.className = 'trainpercent';
+    statsBox.parentElement.appendChild(pctRow);
+  }
+  pctRow.innerHTML = `<b>${percent}%</b> тренировочных дней в месяце`;
 }
 
 let resizeTimer = null;
@@ -866,7 +931,7 @@ function renderTodayBtn(){
 const OB_STEPS = [
   {icon:'💪', title:'Набор массы', text:'Это твой личный трекер питания. Отмечай съеденное — приложение считает калории, белки, жиры, углеводы и воду за день.'},
   {icon:'✅', title:'Как отмечать', text:'Нажми на строку продукта — появится галочка. Внизу приёма есть «+ Внеплановая еда», там же указываешь вес порции.'},
-  {icon:'💧', title:'Вода и прогресс', text:'В строке воды — кнопки − и + по 50 мл. Долгое нажатие ускоряет. Вода суммируется по всем приёмам.'}
+  {icon:'💧', title:'Вода и прогресс', text:'В строке воды — кнопки − и + по 200 мл. Долгое нажатие ускоряет. Вода суммируется по всем приёмам.'}
 ];
 function renderOnboard(){
   const step = OB_STEPS[obIdx];
@@ -1041,7 +1106,7 @@ function openMenu(){
 function closeMenu(){ document.getElementById('menuOverlay').classList.remove('on'); }
 
 /* ============================================================
-   СОБЫТИЯ — базовые
+   СОБЫТИЯ
    ============================================================ */
 function bindBaseEvents(){
   document.getElementById('dayPrev').onclick = ()=>{
@@ -1275,7 +1340,7 @@ function bindMealEvents(){
       setWater(currentKey(), mealId, next);
       updateMealWaterRow(mealId);
       renderBarsAndTotals();
-      vibrate(6);
+      vibrate(8);
       return;
     }
     if(wbtn) wbtn._longpressed = false;
@@ -1338,7 +1403,7 @@ function bindMealEvents(){
         setWater(currentKey(), mealId, next);
         updateMealWaterRow(mealId);
         renderBarsAndTotals();
-      }, 150);
+      }, 250);
     }, 500);
   };
   const stopLP = ()=>{
