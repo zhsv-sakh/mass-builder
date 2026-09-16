@@ -360,6 +360,16 @@
   .onboard .obbtns .next{background:var(--accent);color:#fff}
   .onboard .obbtns button:active{transform:scale(.97)}
 
+    .clientpicker{background:var(--accent);border:0;color:#fff;border-radius:11px;
+    padding:0 10px;height:40px;font-size:12.5px;font-weight:700;cursor:pointer;
+    max-width:140px;flex:none;appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='white' stroke-width='1.5' fill='none'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center;padding-right:24px}
+  .clientpicker.hidden{display:none}
+  .trainerbanner{background:var(--warn);color:#000;padding:6px 10px;border-radius:9px;
+    font-size:12px;font-weight:700;text-align:center;margin-bottom:8px}
+  .trainerbanner.hidden{display:none}
+  
   @media (max-width:380px){
     .topbar h1{font-size:16px}
     .totals .cell .v{font-size:12.5px}
@@ -393,16 +403,18 @@
       <div class="sub" id="hSub">сегодня · набор массы</div>
     </div>
     <div class="right">
-      <div class="weight">
+      <div class="weight" id="weightBox">
         <b id="hWeight">67.5</b>
         <span>кг</span>
       </div>
+      <select id="clientPicker" class="clientpicker hidden"></select>
       <button class="todaybtn hidden" id="btnToday">← сегодня</button>
       <button class="iconbtn" id="btnCalendar">📅</button>
     </div>
   </div>
 
-  <div class="tabpage on" id="tabToday">
+   <div class="tabpage on" id="tabToday">
+    <div class="trainerbanner hidden" id="trainerBanner">👨‍🏫 Режим тренера · только просмотр · <span id="trainerClient">—</span></div>
     <div class="dayrow">
       <button class="dayarrow" id="dayPrev">‹</button>
       <div class="daystrip" id="dayStrip"></div>
@@ -574,6 +586,22 @@
       <button id="btnSyncClear">🗑️ Забыть токен</button>
     </div>
     <div class="backupinfo" id="syncInfo">Синхронизация не настроена</div>
+        <div class="section-title">👨‍🏫 Режим тренера</div>
+    <label class="savechk" style="margin-bottom:10px">
+      <input type="checkbox" id="trainerMode"> Включить режим тренера
+    </label>
+    <div id="trainerBlock" style="display:none">
+      <div class="profrow"><span>Ваш токен (для чтения)</span><input type="password" id="trainerToken" placeholder="github_pat_..."></div>
+      <div class="section-title" style="margin-top:14px">📋 Клиенты</div>
+      <div id="clientsList" style="margin-bottom:10px"></div>
+      <div class="customform" style="grid-template-columns:1fr 1fr">
+        <input class="full" id="clientName" placeholder="Имя (например, Виталик)">
+        <input id="clientOwner" placeholder="Логин GitHub (zhsv-sakh)">
+        <input id="clientRepo" placeholder="Репозиторий (mass-data)">
+        <input class="full" id="clientFile" placeholder="Файл (vitalik.json)">
+      </div>
+      <button class="btn add" id="btnAddClient" style="width:100%;justify-content:center;margin-bottom:10px">+ Добавить клиента</button>
+    </div>
     <div class="section-title">💾 Данные</div>
     <div class="backuprow">
       <button id="btnExport">💾 Сохранить бэкап</button>
