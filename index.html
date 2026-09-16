@@ -563,7 +563,17 @@
       </select>
     </div>
     <div class="profrow"><span>Сдвиг приёмов, мин</span><input type="number" id="pShift" value="0" step="15"></div>
-
+    <div class="section-title">🔄 Синхронизация</div>
+    <div class="profrow"><span>Логин GitHub</span><input type="text" id="syncOwner" value="zhsv-sakh"></div>
+    <div class="profrow"><span>Репозиторий</span><input type="text" id="syncRepo" value="mass-data"></div>
+    <div class="profrow"><span>Файл</span><input type="text" id="syncFile" value="vitalik.json"></div>
+    <div class="profrow"><span>Токен</span><input type="password" id="syncToken" placeholder="github_pat_..."></div>
+    <div class="backuprow" style="margin-top:10px">
+      <button id="btnSyncNow">🔄 Отправить сейчас</button>
+      <button id="btnSyncCheck">🔍 Проверить связь</button>
+      <button id="btnSyncClear">🗑️ Забыть токен</button>
+    </div>
+    <div class="backupinfo" id="syncInfo">Синхронизация не настроена</div>
     <div class="section-title">💾 Данные</div>
     <div class="backuprow">
       <button id="btnExport">💾 Сохранить бэкап</button>
