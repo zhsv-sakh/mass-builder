@@ -3,6 +3,7 @@
    ============================================================
    Зависит от data.js (MEALS, VITAMINS, BASE_FOODS, GOALS).
    Подключается ПОСЛЕ data.js.
+   v7.9: добавлен режим тренера + синхронизация GitHub
    ============================================================ */
 
 const LS_KEY = 'massBuilderV6';
@@ -10,12 +11,167 @@ const LS_LAST_BACKUP = 'massBuilderV6_lastBackup';
 const LS_AUTO = 'massBuilderV6_autobackup';
 const LS_BEFORE_IMPORT = 'massBuilderV6_before_import';
 const ONBOARD_KEY = 'massBuilderV7_onboarded';
-const STATE_VERSION = '7.8';
+const STATE_VERSION = '7.9';
+
+const LS_SYNC = 'massBuilderV6_sync';
+const LS_CLIENTS = 'massBuilderV6_clients';
+const LS_TRAINER_TOKEN = 'massBuilderV6_trainerToken';
+const LS_TRAINER_MODE = 'massBuilderV6_trainerMode';
+const LS_ACTIVE_CLIENT = 'massBuilderV6_activeClient';
+
+const MONTHS_SHORT = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+const MONTHS_FULL  = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                      'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const WEEKDAYS_SHORT = ['вс','пн','вт','ср','чт','пт','сб'];
 
 /* ============================================================
-   GITHUB SYNC
+   STATE
    ============================================================ */
-const LS_SYNC = 'massBuilderV6_sync';  // {owner, repo, file, token, lastSync, lastSha}
+let state = {
+  _v: STATE_VERSION,
+  meals:{}, extras:{}, water:{}, vitamins:{}, weights:{}, modes:{},
+  profile:{ name:'Виталик', height:180, target:75, weight:67.5, goal:'gain', theme:'dark', shift:0 },
+  customFoods:[]
+};
+
+let activeDate = null;
+let stripAnchor = null;
+let calYear, calMonth;
+let chartScale = 30;
+let editingExtra = null;
+let portionFood = null;
+let portionMealId = null;
+let currentMealId = null;
+let monthPickerOpen = false;
+let obIdx = 0;
+
+let saveTimer = null;
+function scheduleSave(){
+  if(saveTimer) return;
+  saveTimer = setTimeout(()=>{ saveTimer=null; writeLS(); }, 300);
+}
+function saveStateImmediate(){
+  if(isReadOnly()) return;
+  if(saveTimer){ clearTimeout(saveTimer); saveTimer=null; }
+  writeLS();
+}
+function writeLS(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
+  scheduleSync();
+}
+function saveState(){ scheduleSave(); }
+
+/* ============================================================
+   TRAINER MODE
+   ============================================================ */
+let trainerMode = false;
+let clients = [];
+let activeClient = null;
+let trainerData = null;
+
+function loadTrainerSettings(){
+  try{
+    trainerMode = localStorage.getItem(LS_TRAINER_MODE) === '1';
+    clients = JSON.parse(localStorage.getItem(LS_CLIENTS) || '[]');
+    activeClient = JSON.parse(localStorage.getItem(LS_ACTIVE_CLIENT) || 'null');
+  }catch(e){ trainerMode=false; clients=[]; activeClient=null; }
+}
+function saveTrainerSettings(){
+  try{
+    localStorage.setItem(LS_TRAINER_MODE, trainerMode?'1':'0');
+    localStorage.setItem(LS_CLIENTS, JSON.stringify(clients));
+    localStorage.setItem(LS_ACTIVE_CLIENT, JSON.stringify(activeClient));
+  }catch(e){}
+}
+function getTrainerToken(){
+  try{ return localStorage.getItem(LS_TRAINER_TOKEN) || ''; }catch(e){ return ''; }
+}
+function setTrainerToken(t){
+  try{ localStorage.setItem(LS_TRAINER_TOKEN, t||''); }catch(e){}
+}
+function getActiveState(){
+  return (trainerMode && activeClient && trainerData) ? trainerData : state;
+}
+function isReadOnly(){
+  return !!(trainerMode && activeClient && trainerData);
+}
+
+async function loadClientData(client){
+  const token = getTrainerToken();
+  if(!token) throw new Error('Нет токена тренера');
+  const url = `https://api.github.com/repos/${client.owner}/${client.repo}/contents/${client.file}?ref=main`;
+  const r = await fetch(url, {
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Accept': 'application/vnd.github+json'
+    }
+  });
+  if(!r.ok) throw new Error('GET ' + r.status);
+  const j = await r.json();
+  const txt = b64decode(j.content);
+  return JSON.parse(txt);
+}
+
+async function enterTrainerMode(client){
+  if(!client) return;
+  activeClient = client;
+  try{
+    trainerData = await loadClientData(client);
+    saveTrainerSettings();
+    applyTrainerView();
+    toast('Данные: ' + client.name);
+  }catch(e){
+    console.warn('load client fail', e);
+    toast('Не удалось загрузить: ' + e.message);
+  }
+}
+function exitTrainerMode(){
+  trainerData = null;
+  activeClient = null;
+  saveTrainerSettings();
+  applyTrainerView();
+  toast('Свои данные');
+}
+function applyTrainerView(){
+  const banner = document.getElementById('trainerBanner');
+  const picker = document.getElementById('clientPicker');
+  const inTrainer = trainerMode && activeClient && trainerData;
+  if(banner){
+    banner.classList.toggle('hidden', !inTrainer);
+    if(inTrainer) document.getElementById('trainerClient').textContent = activeClient.name;
+  }
+  if(picker){
+    picker.classList.toggle('hidden', !(trainerMode && clients.length));
+    picker.innerHTML = '<option value="">— свои —</option>' +
+      clients.map(c=>`<option value="${c.owner}/${c.repo}/${c.file}" ${activeClient && activeClient.file===c.file ? 'selected':''}>${c.name}</option>`).join('');
+  }
+  renderAll();
+}
+
+function renderClientsList(){
+  const box = document.getElementById('clientsList');
+  if(!box) return;
+  if(!clients.length){ box.innerHTML = '<div class="empty">Клиентов нет</div>'; return; }
+  box.innerHTML = clients.map((c,i)=>`
+    <div class="profrow" style="padding:8px 0">
+      <span><b>${c.name}</b><br><small style="color:var(--muted);font-size:11px">${c.owner}/${c.repo}/${c.file}</small></span>
+      <button class="iconbtn" style="width:34px;height:34px;font-size:14px" data-del-client="${i}">✕</button>
+    </div>`).join('');
+  box.querySelectorAll('[data-del-client]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const i = +btn.dataset.delClient;
+      if(activeClient && activeClient.file === clients[i].file){ activeClient=null; trainerData=null; }
+      clients.splice(i,1);
+      saveTrainerSettings();
+      renderClientsList();
+      applyTrainerView();
+    };
+  });
+}
+
+/* ============================================================
+   GITHUB SYNC (свой дневник)
+   ============================================================ */
 let syncTimer = null;
 let syncInProgress = false;
 
@@ -33,7 +189,6 @@ function syncApiUrl(cfg){
   return `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.file}`;
 }
 function b64encode(str){
-  // UTF-8 safe base64
   return btoa(unescape(encodeURIComponent(str)));
 }
 function b64decode(b64){
@@ -78,7 +233,8 @@ async function ghPutFile(cfg, contentStr, sha){
 }
 
 async function syncNow(silent){
-  if(syncInProgress){ return; }
+  if(isReadOnly()) return;
+  if(syncInProgress) return;
   const cfg = getSyncCfg();
   if(!cfg.owner || !cfg.repo || !cfg.file || !cfg.token){
     if(!silent) toast('Синхронизация не настроена');
@@ -105,6 +261,7 @@ async function syncNow(silent){
 
 function scheduleSync(){
   if(!syncConfigured()) return;
+  if(isReadOnly()) return;
   if(syncTimer) clearTimeout(syncTimer);
   syncTimer = setTimeout(()=>{ syncTimer=null; syncNow(true); }, 10000);
 }
@@ -134,47 +291,6 @@ function updateSyncInfo(errMsg){
   info.textContent = 'Последняя синхронизация: ' + txt;
   info.className = 'backupinfo';
 }
-
-const MONTHS_SHORT = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
-const MONTHS_FULL  = ['Январь','Февраль','Март','Апрель','Май','Июнь',
-                      'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-const WEEKDAYS_SHORT = ['вс','пн','вт','ср','чт','пт','сб'];
-
-/* ============================================================
-   STATE
-   ============================================================ */
-let state = {
-  _v: STATE_VERSION,
-  meals:{}, extras:{}, water:{}, vitamins:{}, weights:{}, modes:{},
-  profile:{ name:'Виталик', height:180, target:75, weight:67.5, goal:'gain', theme:'dark', shift:0 },
-  customFoods:[]
-};
-
-let activeDate = null;
-let stripAnchor = null;
-let calYear, calMonth;
-let chartScale = 30;
-let editingExtra = null;
-let portionFood = null;
-let portionMealId = null;
-let currentMealId = null;
-let monthPickerOpen = false;
-let obIdx = 0;
-
-let saveTimer = null;
-function scheduleSave(){
-  if(saveTimer) return;
-  saveTimer = setTimeout(()=>{ saveTimer=null; writeLS(); }, 300);
-}
-function saveStateImmediate(){
-  if(saveTimer){ clearTimeout(saveTimer); saveTimer=null; }
-  writeLS();
-}
-function writeLS(){
-  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
-  scheduleSync();
-}
-function saveState(){ scheduleSave(); }
 
 /* ============================================================
    ДАТЫ
@@ -240,38 +356,49 @@ function migrateWater(){
    ХЕЛПЕРЫ
    ============================================================ */
 function getMealData(date, mealId){
-  if(!state.meals[date]) state.meals[date] = {};
-  if(!state.meals[date][mealId]){
-    state.meals[date][mealId] = { _activeVariant:'v1', v1:{}, v2:{}, v3:{} };
+  const S = getActiveState();
+  if(!S.meals[date]) S.meals[date] = {};
+  if(!S.meals[date][mealId]){
+    S.meals[date][mealId] = { _activeVariant:'v1', v1:{}, v2:{}, v3:{} };
   }
-  const m = state.meals[date][mealId];
+  const m = S.meals[date][mealId];
   MEALS.find(x=>x.id===mealId).variants.forEach(v=>{ if(!m[v.id]) m[v.id]={}; });
   if(!m._activeVariant) m._activeVariant='v1';
   return m;
 }
 function getWater(date, mealId){
-  if(!state.water[date]) state.water[date]={};
-  const v = state.water[date][mealId];
+  const S = getActiveState();
+  if(!S.water[date]) S.water[date]={};
+  const v = S.water[date][mealId];
   return typeof v === 'number' && !isNaN(v) ? v : 0;
 }
 function setWater(date, mealId, val){
+  if(isReadOnly()) return;
   if(!state.water[date]) state.water[date]={};
   state.water[date][mealId] = Math.max(0, Math.round(val || 0));
   saveState();
 }
 function getExtras(date, mealId){
-  if(!state.extras[date]) state.extras[date]={};
-  if(!state.extras[date][mealId]) state.extras[date][mealId]=[];
-  return state.extras[date][mealId];
+  const S = getActiveState();
+  if(!S.extras[date]) S.extras[date]={};
+  if(!S.extras[date][mealId]) S.extras[date][mealId]=[];
+  return S.extras[date][mealId];
 }
 function getVitamins(date){
-  if(!state.vitamins[date]){
-    state.vitamins[date]={ d3:false, omega:false, multi:false, magnesium:false, zinc:false, creatine:false };
+  const S = getActiveState();
+  if(!S.vitamins[date]){
+    S.vitamins[date]={ d3:false, omega:false, multi:false, magnesium:false, zinc:false, creatine:false };
   }
-  return state.vitamins[date];
+  return S.vitamins[date];
 }
-function getMode(date){ return state.modes[date] || 'train'; }
-function setMode(date, mode){ state.modes[date]=mode; saveState(); }
+function getMode(date){
+  const S = getActiveState();
+  return S.modes[date] || 'train';
+}
+function setMode(date, mode){
+  if(isReadOnly()) return;
+  state.modes[date]=mode; saveState();
+}
 
 function sumMeal(meal, variant, checked, extras, waterMl){
   let k=0,p=0,f=0,c=0;
@@ -294,8 +421,9 @@ function sumDay(date){
   return total;
 }
 function targets(date){
-  const goal = state.profile.goal || 'gain';
-  const g = GOALS[goal];
+  const S = getActiveState();
+  const goal = S.profile.goal || 'gain';
+  const g = GOALS[goal] || GOALS.gain;
   const mode = getMode(date || currentKey());
   const train = mode==='train';
   return {
@@ -321,7 +449,8 @@ function toast(msg){
 }
 function vibrate(ms){ if(navigator.vibrate) try{ navigator.vibrate(ms||8); }catch(_){} }
 function mealTime(meal){
-  const shift = state.profile.shift || 0;
+  const S = getActiveState();
+  const shift = S.profile.shift || 0;
   const [h,m] = meal.time.split(':').map(Number);
   let total = h*60 + m + shift;
   const nextDay = total >= 1440;
@@ -330,8 +459,9 @@ function mealTime(meal){
   return pad2(hh)+':'+pad2(mm) + (nextDay ? ' (+1)' : '');
 }
 function latestWeight(){
-  const keys = Object.keys(state.weights).sort();
-  return keys.length ? state.weights[keys[keys.length-1]] : (state.profile.weight || 67.5);
+  const S = getActiveState();
+  const keys = Object.keys(S.weights).sort();
+  return keys.length ? S.weights[keys[keys.length-1]] : (S.profile.weight || 67.5);
 }
 function applyTheme(){ document.documentElement.setAttribute('data-theme', state.profile.theme || 'dark'); }
 function allFoods(){ return BASE_FOODS.concat(state.customFoods); }
@@ -364,11 +494,12 @@ function renderDayStrip(){
   }
 }
 function dayHasData(key){
-  if(state.weights[key]) return true;
-  if(state.meals[key] && Object.keys(state.meals[key]).length) return true;
-  if(state.extras[key] && Object.keys(state.extras[key]).length) return true;
-  if(state.water[key] && Object.values(state.water[key]).some(v => (typeof v==='number'?v:0) > 0)) return true;
-  if(state.vitamins[key] && Object.values(state.vitamins[key]).some(Boolean)) return true;
+  const S = getActiveState();
+  if(S.weights[key]) return true;
+  if(S.meals[key] && Object.keys(S.meals[key]).length) return true;
+  if(S.extras[key] && Object.keys(S.extras[key]).length) return true;
+  if(S.water[key] && Object.values(S.water[key]).some(v => (typeof v==='number'?v:0) > 0)) return true;
+  if(S.vitamins[key] && Object.values(S.vitamins[key]).some(Boolean)) return true;
   return false;
 }
 
@@ -542,6 +673,7 @@ function renderVitamins(){
   }).join('');
   wrap.querySelectorAll('.vit').forEach(el=>{
     el.onclick = ()=>{
+      if(isReadOnly()) return;
       const id = el.dataset.vit;
       const vv = getVitamins(currentKey());
       vv[id] = !vv[id]; saveState(); renderAll();
@@ -565,6 +697,7 @@ function renderMode(){
    МОДАЛКА ЕДЫ
    ============================================================ */
 function openFoodModal(mealId){
+  if(isReadOnly()){ toast('Режим просмотра'); return; }
   currentMealId = mealId;
   document.getElementById('foodOverlay').classList.add('on');
   document.getElementById('foodSearch').value='';
@@ -614,6 +747,7 @@ function updatePortionPreview(){
   document.getElementById('pvCarbs').textContent = fmt(portionFood.carbs * coef);
 }
 function addExtra(mealId, name, kcal, protein, fat, carbs, portion){
+  if(isReadOnly()) return;
   const date = currentKey();
   const arr = getExtras(date, mealId);
   arr.push({
@@ -631,6 +765,7 @@ function addExtra(mealId, name, kcal, protein, fat, carbs, portion){
    РЕДАКТИРОВАНИЕ ВНЕПЛАНОВОГО
    ============================================================ */
 function openEditExtra(mealId, idx){
+  if(isReadOnly()) return;
   const date = currentKey();
   const arr = getExtras(date, mealId);
   const e = arr[idx];
@@ -821,8 +956,9 @@ function rangeAround(dateKeyStr, back, forward){
    ============================================================ */
 function renderProgress(){
   const cur = currentKey();
+  const S = getActiveState();
   const sat = isSaturday(cur);
-  const existing = state.weights[cur];
+  const existing = S.weights[cur];
   const box = document.getElementById('weightBoxDate');
   const now = document.getElementById('weightBoxNow');
   const input = document.getElementById('weightInput');
@@ -853,6 +989,15 @@ function renderProgress(){
       note.textContent = 'Суббота — обычный день взвешивания. Можно записать и сегодня.';
     }
   }
+  if(isReadOnly()){
+    input.disabled = true;
+    btn.disabled = true;
+    btn.classList.add('hint');
+    note.textContent = 'Режим просмотра';
+  } else {
+    input.disabled = false;
+    btn.disabled = false;
+  }
 
   const wDays = rangeAround(cur, 7, 6);
   const wLabels = wDays.map(k=> k.slice(8) + '.' + k.slice(5,7));
@@ -860,17 +1005,17 @@ function renderProgress(){
   let selIdx = -1;
   wDays.forEach((k,i)=>{
     if(k===cur) selIdx = i;
-    if(state.weights[k]) wPoints.push({x:i, y:state.weights[k]});
+    if(S.weights[k]) wPoints.push({x:i, y:S.weights[k]});
   });
   drawLine(document.getElementById('chartWeight'), wPoints, '#4f8cff', wLabels, selIdx);
 
   const hist = document.getElementById('weightHist');
-  const entries = Object.keys(state.weights).sort().reverse().slice(0,10);
+  const entries = Object.keys(S.weights).sort().reverse().slice(0,10);
   hist.innerHTML = entries.length
     ? entries.map(k=>{
         const dd = parseKey(k);
         const wday = ['вс','пн','вт','ср','чт','пт','сб'][dd.getDay()];
-        return `<div data-hist-key="${k}"><span>${k} (${wday})</span><b>${state.weights[k]} кг</b></div>`;
+        return `<div data-hist-key="${k}"><span>${k} (${wday})</span><b>${S.weights[k]} кг</b></div>`;
       }).join('')
     : '<div class="empty">Пока нет записей веса</div>';
   hist.querySelectorAll('[data-hist-key]').forEach(el=>{
@@ -905,10 +1050,11 @@ function renderProgress(){
 }
 
 /* ============================================================
-   ТРЕНИРОВКИ — компактный счётчик
+   ТРЕНИРОВКИ
    ============================================================ */
 function renderTrainings(){
   const cur = currentKey();
+  const S = getActiveState();
   const curDate = parseKey(cur);
   const year = curDate.getFullYear();
   const month = curDate.getMonth();
@@ -925,7 +1071,7 @@ function renderTrainings(){
     const key = year+'-'+pad2(month+1)+'-'+pad2(d);
     if(key > today) continue;
 
-    const mode = state.modes[key];
+    const mode = S.modes[key];
     const hasData = dayHasData(key);
 
     if(mode === 'train') train++;
@@ -1037,7 +1183,8 @@ function renderAll(){
   if(document.getElementById('tabProgress').classList.contains('on')) renderProgress();
 }
 function renderHeader(){
-  const p = state.profile;
+  const S = getActiveState();
+  const p = S.profile || state.profile;
   const w = latestWeight();
   document.getElementById('hName').textContent = '💪 ' + (p.name||'Виталик');
   document.getElementById('hWeight').textContent = w;
@@ -1106,6 +1253,7 @@ function exportBackup(){
 }
 function updateBackupInfo(){
   const info = document.getElementById('backupInfo');
+  if(!info) return;
   let last = null;
   try{ last = localStorage.getItem(LS_LAST_BACKUP); }catch(e){}
   if(!last){
@@ -1123,6 +1271,7 @@ function updateBackupInfo(){
     info.className = 'backupinfo' + (days >= 7 ? ' warn' : '');
   }
   const btn = document.getElementById('btnAutoRestore');
+  if(!btn) return;
   let auto = null;
   try{ auto = JSON.parse(localStorage.getItem(LS_AUTO) || 'null'); }catch(e){}
   if(auto && auto._date === todayKey()){
@@ -1224,13 +1373,26 @@ function openMenu(){
   document.getElementById('pWeight').value = p.weight || 67.5;
   document.getElementById('pTheme').value = p.theme || 'dark';
   document.getElementById('pShift').value = p.shift || 0;
-    const scfg = getSyncCfg();
-  if(scfg.owner) document.getElementById('syncOwner').value = scfg.owner;
-  if(scfg.repo) document.getElementById('syncRepo').value = scfg.repo;
-  if(scfg.file) document.getElementById('syncFile').value = scfg.file;
-  if(scfg.token) document.getElementById('syncToken').value = scfg.token;
+  updateBackupInfo();
+
+  // sync fields
+  const cfg = getSyncCfg();
+  if(cfg.owner) document.getElementById('syncOwner').value = cfg.owner;
+  if(cfg.repo) document.getElementById('syncRepo').value = cfg.repo;
+  if(cfg.file) document.getElementById('syncFile').value = cfg.file;
+  if(cfg.token) document.getElementById('syncToken').value = cfg.token;
   updateSyncInfo(null);
-   updateBackupInfo();
+
+  // trainer fields
+  loadTrainerSettings();
+  const tmCheck = document.getElementById('trainerMode');
+  if(tmCheck) tmCheck.checked = trainerMode;
+  const tmBlock = document.getElementById('trainerBlock');
+  if(tmBlock) tmBlock.style.display = trainerMode ? 'block' : 'none';
+  const tmToken = document.getElementById('trainerToken');
+  if(tmToken) tmToken.value = getTrainerToken();
+  renderClientsList();
+
   document.getElementById('menuOverlay').classList.add('on');
 }
 function closeMenu(){ document.getElementById('menuOverlay').classList.remove('on'); }
@@ -1274,6 +1436,7 @@ function bindBaseEvents(){
 
   document.querySelectorAll('#modeSeg button').forEach(b=>{
     b.onclick = ()=>{
+      if(isReadOnly()){ toast('Режим просмотра'); return; }
       const date = currentKey();
       setMode(date, b.dataset.mode);
       if(date !== todayKey()) toast('Режим для '+date);
@@ -1380,16 +1543,9 @@ function bindBaseEvents(){
     closeMenu();
     toast('Сохранено');
   };
-    /* --- Sync --- */
-  const cfg = getSyncCfg();
-  if(cfg.owner) document.getElementById('syncOwner').value = cfg.owner;
-  if(cfg.repo) document.getElementById('syncRepo').value = cfg.repo;
-  if(cfg.file) document.getElementById('syncFile').value = cfg.file;
-  if(cfg.token) document.getElementById('syncToken').value = cfg.token;
-  updateSyncInfo(null);
 
+  /* --- Sync --- */
   document.getElementById('btnSyncNow').onclick = ()=>{
-    // сохраняем настройки перед отправкой
     const c = getSyncCfg();
     c.owner = document.getElementById('syncOwner').value.trim();
     c.repo = document.getElementById('syncRepo').value.trim();
@@ -1419,7 +1575,55 @@ function bindBaseEvents(){
     updateSyncInfo(null);
     toast('Токен забыт');
   };
-   document.getElementById('btnExport').onclick = exportBackup;
+
+  /* --- Trainer mode --- */
+  loadTrainerSettings();
+  const tmCheck = document.getElementById('trainerMode');
+  const tmBlock = document.getElementById('trainerBlock');
+  const tmToken = document.getElementById('trainerToken');
+  if(tmCheck) tmCheck.checked = trainerMode;
+  if(tmBlock) tmBlock.style.display = trainerMode ? 'block' : 'none';
+  if(tmToken) tmToken.value = getTrainerToken();
+
+  if(tmCheck) tmCheck.onchange = ()=>{
+    trainerMode = tmCheck.checked;
+    if(tmBlock) tmBlock.style.display = trainerMode ? 'block' : 'none';
+    if(!trainerMode){ activeClient=null; trainerData=null; }
+    saveTrainerSettings();
+    renderClientsList();
+    applyTrainerView();
+  };
+  if(tmToken) tmToken.onchange = ()=> setTrainerToken(tmToken.value.trim());
+
+  const addClientBtn = document.getElementById('btnAddClient');
+  if(addClientBtn) addClientBtn.onclick = ()=>{
+    const name = document.getElementById('clientName').value.trim();
+    const owner = document.getElementById('clientOwner').value.trim();
+    const repo = document.getElementById('clientRepo').value.trim();
+    const file = document.getElementById('clientFile').value.trim();
+    if(!name || !owner || !repo || !file){ toast('Заполни все поля'); return; }
+    clients.push({name, owner, repo, file});
+    saveTrainerSettings();
+    document.getElementById('clientName').value='';
+    document.getElementById('clientOwner').value='';
+    document.getElementById('clientRepo').value='';
+    document.getElementById('clientFile').value='';
+    renderClientsList();
+    applyTrainerView();
+    toast('Клиент добавлен');
+  };
+
+  const clientPicker = document.getElementById('clientPicker');
+  if(clientPicker){
+    clientPicker.onchange = ()=>{
+      const val = clientPicker.value;
+      if(!val){ exitTrainerMode(); return; }
+      const c = clients.find(x=>`${x.owner}/${x.repo}/${x.file}` === val);
+      if(c) enterTrainerMode(c);
+    };
+  }
+
+  document.getElementById('btnExport').onclick = exportBackup;
   document.getElementById('btnImport').onclick = ()=> document.getElementById('fileInput').click();
   document.getElementById('fileInput').onchange = (e)=>{
     const f = e.target.files && e.target.files[0];
@@ -1429,6 +1633,7 @@ function bindBaseEvents(){
   document.getElementById('btnAutoRestore').onclick = autoRestore;
 
   document.getElementById('btnSaveWeight').onclick = ()=>{
+    if(isReadOnly()){ toast('Режим просмотра'); return; }
     const cur = currentKey();
     const v = parseFloat(document.getElementById('weightInput').value);
     if(!v || v<=0){ toast('Введи вес'); return; }
@@ -1471,6 +1676,9 @@ function bindBaseEvents(){
   });
 
   window.addEventListener('beforeunload', ()=>{ saveStateImmediate(); });
+
+  renderClientsList();
+  applyTrainerView();
 }
 
 /* ============================================================
@@ -1483,6 +1691,7 @@ function bindMealEvents(){
   const wrap = document.getElementById('mealsWrap');
 
   wrap.addEventListener('click', (ev)=>{
+    if(isReadOnly()) return;
     const t = ev.target;
 
     const pill = t.closest('.pill');
@@ -1583,6 +1792,7 @@ function bindMealEvents(){
   };
 
   wrap.addEventListener('touchstart', (ev)=>{
+    if(isReadOnly()) return;
     const wbtn = ev.target.closest('[data-wa]');
     if(!wbtn) return;
     lpTarget = wbtn;
@@ -1593,6 +1803,7 @@ function bindMealEvents(){
   wrap.addEventListener('touchmove', stopLP, {passive:true});
 
   wrap.addEventListener('mousedown', (ev)=>{
+    if(isReadOnly()) return;
     const wbtn = ev.target.closest('[data-wa]');
     if(!wbtn) return;
     lpTarget = wbtn;
@@ -1606,6 +1817,7 @@ function bindMealEvents(){
    INIT
    ============================================================ */
 loadState();
+loadTrainerSettings();
 applyTheme();
 stripAnchor = todayKey();
 autoSnapshot();
