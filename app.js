@@ -12,6 +12,129 @@ const LS_BEFORE_IMPORT = 'massBuilderV6_before_import';
 const ONBOARD_KEY = 'massBuilderV7_onboarded';
 const STATE_VERSION = '7.8';
 
+/* ============================================================
+   GITHUB SYNC
+   ============================================================ */
+const LS_SYNC = 'massBuilderV6_sync';  // {owner, repo, file, token, lastSync, lastSha}
+let syncTimer = null;
+let syncInProgress = false;
+
+function getSyncCfg(){
+  try{ return JSON.parse(localStorage.getItem(LS_SYNC) || 'null') || {}; }catch(e){ return {}; }
+}
+function setSyncCfg(cfg){
+  try{ localStorage.setItem(LS_SYNC, JSON.stringify(cfg)); }catch(e){}
+}
+function syncConfigured(){
+  const c = getSyncCfg();
+  return !!(c.owner && c.repo && c.file && c.token);
+}
+function syncApiUrl(cfg){
+  return `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.file}`;
+}
+function b64encode(str){
+  // UTF-8 safe base64
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function b64decode(b64){
+  return decodeURIComponent(escape(atob(b64.replace(/\n/g,''))));
+}
+
+async function ghGetFile(cfg){
+  const r = await fetch(syncApiUrl(cfg) + '?ref=main', {
+    headers: {
+      'Authorization': 'Bearer ' + cfg.token,
+      'Accept': 'application/vnd.github+json'
+    }
+  });
+  if(r.status === 404) return { sha:null, content:null };
+  if(!r.ok) throw new Error('GET ' + r.status);
+  const j = await r.json();
+  return { sha: j.sha, content: j.content ? b64decode(j.content) : null };
+}
+
+async function ghPutFile(cfg, contentStr, sha){
+  const body = {
+    message: 'sync ' + new Date().toISOString(),
+    content: b64encode(contentStr),
+    branch: 'main'
+  };
+  if(sha) body.sha = sha;
+  const r = await fetch(syncApiUrl(cfg), {
+    method: 'PUT',
+    headers: {
+      'Authorization': 'Bearer ' + cfg.token,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if(!r.ok){
+    const t = await r.text();
+    throw new Error('PUT ' + r.status + ' ' + t.slice(0,200));
+  }
+  const j = await r.json();
+  return j.content.sha;
+}
+
+async function syncNow(silent){
+  if(syncInProgress){ return; }
+  const cfg = getSyncCfg();
+  if(!cfg.owner || !cfg.repo || !cfg.file || !cfg.token){
+    if(!silent) toast('Синхронизация не настроена');
+    return;
+  }
+  syncInProgress = true;
+  updateSyncInfo('Синхронизация...');
+  try{
+    const cur = await ghGetFile(cfg);
+    const newSha = await ghPutFile(cfg, JSON.stringify(state), cur.sha);
+    cfg.lastSha = newSha;
+    cfg.lastSync = new Date().toISOString();
+    setSyncCfg(cfg);
+    updateSyncInfo(null);
+    if(!silent) toast('Синхронизировано ✓');
+  }catch(e){
+    console.warn('sync fail', e);
+    updateSyncInfo('Ошибка: ' + e.message);
+    if(!silent) toast('Ошибка синхронизации');
+  }finally{
+    syncInProgress = false;
+  }
+}
+
+function scheduleSync(){
+  if(!syncConfigured()) return;
+  if(syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(()=>{ syncTimer=null; syncNow(true); }, 10000);
+}
+
+function updateSyncInfo(errMsg){
+  const info = document.getElementById('syncInfo');
+  if(!info) return;
+  if(errMsg){ info.textContent = errMsg; info.className = 'backupinfo warn'; return; }
+  const cfg = getSyncCfg();
+  if(!cfg.owner || !cfg.repo || !cfg.file || !cfg.token){
+    info.textContent = 'Синхронизация не настроена';
+    info.className = 'backupinfo warn';
+    return;
+  }
+  if(!cfg.lastSync){
+    info.textContent = 'Настроено, но ещё не отправлялось';
+    info.className = 'backupinfo';
+    return;
+  }
+  const d = new Date(cfg.lastSync);
+  const diff = Math.floor((Date.now() - d.getTime())/1000);
+  let txt;
+  if(diff < 60) txt = 'только что';
+  else if(diff < 3600) txt = Math.floor(diff/60) + ' мин назад';
+  else if(diff < 86400) txt = Math.floor(diff/3600) + ' ч назад';
+  else txt = Math.floor(diff/86400) + ' дн назад';
+  info.textContent = 'Последняя синхронизация: ' + txt;
+  info.className = 'backupinfo';
+}
+
 const MONTHS_SHORT = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
 const MONTHS_FULL  = ['Январь','Февраль','Март','Апрель','Май','Июнь',
                       'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -49,6 +172,7 @@ function saveStateImmediate(){
 }
 function writeLS(){
   try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
+  scheduleSync();
 }
 function saveState(){ scheduleSave(); }
 
@@ -1100,7 +1224,13 @@ function openMenu(){
   document.getElementById('pWeight').value = p.weight || 67.5;
   document.getElementById('pTheme').value = p.theme || 'dark';
   document.getElementById('pShift').value = p.shift || 0;
-  updateBackupInfo();
+    const scfg = getSyncCfg();
+  if(scfg.owner) document.getElementById('syncOwner').value = scfg.owner;
+  if(scfg.repo) document.getElementById('syncRepo').value = scfg.repo;
+  if(scfg.file) document.getElementById('syncFile').value = scfg.file;
+  if(scfg.token) document.getElementById('syncToken').value = scfg.token;
+  updateSyncInfo(null);
+   updateBackupInfo();
   document.getElementById('menuOverlay').classList.add('on');
 }
 function closeMenu(){ document.getElementById('menuOverlay').classList.remove('on'); }
@@ -1250,7 +1380,46 @@ function bindBaseEvents(){
     closeMenu();
     toast('Сохранено');
   };
-  document.getElementById('btnExport').onclick = exportBackup;
+    /* --- Sync --- */
+  const cfg = getSyncCfg();
+  if(cfg.owner) document.getElementById('syncOwner').value = cfg.owner;
+  if(cfg.repo) document.getElementById('syncRepo').value = cfg.repo;
+  if(cfg.file) document.getElementById('syncFile').value = cfg.file;
+  if(cfg.token) document.getElementById('syncToken').value = cfg.token;
+  updateSyncInfo(null);
+
+  document.getElementById('btnSyncNow').onclick = ()=>{
+    // сохраняем настройки перед отправкой
+    const c = getSyncCfg();
+    c.owner = document.getElementById('syncOwner').value.trim();
+    c.repo = document.getElementById('syncRepo').value.trim();
+    c.file = document.getElementById('syncFile').value.trim();
+    c.token = document.getElementById('syncToken').value.trim();
+    setSyncCfg(c);
+    syncNow(false);
+  };
+  document.getElementById('btnSyncCheck').onclick = async ()=>{
+    const c = getSyncCfg();
+    c.owner = document.getElementById('syncOwner').value.trim();
+    c.repo = document.getElementById('syncRepo').value.trim();
+    c.file = document.getElementById('syncFile').value.trim();
+    c.token = document.getElementById('syncToken').value.trim();
+    setSyncCfg(c);
+    try{
+      const cur = await ghGetFile(c);
+      toast(cur.sha ? 'Связь есть, файл найден ✓' : 'Связь есть, файл пуст');
+    }catch(e){
+      toast('Ошибка: ' + e.message);
+    }
+  };
+  document.getElementById('btnSyncClear').onclick = ()=>{
+    if(!confirm('Забыть токен и настройки синхронизации?')) return;
+    setSyncCfg({});
+    document.getElementById('syncToken').value = '';
+    updateSyncInfo(null);
+    toast('Токен забыт');
+  };
+   document.getElementById('btnExport').onclick = exportBackup;
   document.getElementById('btnImport').onclick = ()=> document.getElementById('fileInput').click();
   document.getElementById('fileInput').onchange = (e)=>{
     const f = e.target.files && e.target.files[0];
