@@ -246,7 +246,38 @@ const BASE_FOODS = [
   /* Жиры и соусы */
   {name:'Сливочное масло', kcal:720, protein:0.8, fat:82, carbs:0.8, defaultPortion:10, small:true},
   {name:'Майонез', kcal:680, protein:1, fat:75, carbs:3, defaultPortion:15, small:true},
-  {name:'Кетчуп', kcal:100, protein:1, fat:0, carbs:25, defaultPortion:20, small:true}
+  {name:'Кетчуп', kcal:100, protein:1, fat:0, carbs:25, defaultPortion:20, small:true},
+     /* --- Котлеты и жареное (7) --- */
+  {name:'Котлеты рыбные (горбуша)', kcal:200, protein:15, fat:11, carbs:8, defaultPortion:100},
+  {name:'Котлеты из свинины', kcal:270, protein:14, fat:20, carbs:8, defaultPortion:100},
+  {name:'Котлеты из курицы', kcal:210, protein:17, fat:12, carbs:7, defaultPortion:100},
+  {name:'Камбала жареная', kcal:190, protein:18, fat:12, carbs:3, defaultPortion:150},
+  {name:'Горбуша жареная', kcal:210, protein:20, fat:13, carbs:2, defaultPortion:150},
+  {name:'Курица жареная (ножка)', kcal:235, protein:22, fat:15, carbs:0, defaultPortion:150},
+  {name:'Курица жареная (грудка)', kcal:175, protein:28, fat:7, carbs:0, defaultPortion:150},
+
+  /* --- Топ-15: белок --- */
+  {name:'Котлеты говяжьи', kcal:250, protein:18, fat:18, carbs:6, defaultPortion:100},
+  {name:'Тефтели', kcal:220, protein:15, fat:14, carbs:7, defaultPortion:100},
+  {name:'Фарш куриный', kcal:143, protein:17, fat:8, carbs:0, defaultPortion:100},
+  {name:'Фарш свиной', kcal:260, protein:17, fat:21, carbs:0, defaultPortion:100},
+  {name:'Яйцо варёное', kcal:155, protein:13, fat:11, carbs:1, defaultPortion:50, small:true},
+  {name:'Омлет (2 яйца + молоко)', kcal:180, protein:13, fat:13, carbs:2, defaultPortion:150},
+
+  /* --- Топ-15: гарниры --- */
+  {name:'Картофель жареный', kcal:190, protein:3, fat:9, carbs:25, defaultPortion:200},
+  {name:'Плов с курицей', kcal:220, protein:12, fat:8, carbs:26, defaultPortion:250},
+  {name:'Пельмени (варёные)', kcal:250, protein:12, fat:12, carbs:25, defaultPortion:200},
+
+  /* --- Топ-15: мучное / читмил --- */
+  {name:'Сырники', kcal:220, protein:12, fat:10, carbs:22, defaultPortion:150},
+  {name:'Блины', kcal:230, protein:6, fat:10, carbs:30, defaultPortion:150},
+  {name:'Оладьи', kcal:250, protein:6, fat:11, carbs:34, defaultPortion:150},
+  {name:'Шаурма с курицей', kcal:215, protein:12, fat:10, carbs:20, defaultPortion:250},
+  {name:'Бургер', kcal:250, protein:13, fat:12, carbs:22, defaultPortion:200},
+
+  /* --- Топ-15: снеки --- */
+  {name:'Протеиновый батончик', kcal:350, protein:30, fat:10, carbs:35, defaultPortion:60, small:true}
 ];
 
 const GOALS = {
