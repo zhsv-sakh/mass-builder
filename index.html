@@ -71,6 +71,8 @@
     font-weight:600;cursor:pointer;transition:.15s;min-height:40px}
   .seg button.on{background:var(--accent);color:#fff}
   .seg button.on.rest{background:#5a6478}
+  .seg.unset button{opacity:.6}
+  .seg.unset button.on{opacity:1}
 
   .bars{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     padding:10px 12px;margin-bottom:12px}
@@ -423,7 +425,7 @@
     <div class="moderow">
       <div class="label">Режим:</div>
       <div class="seg" id="modeSeg">
-        <button data-mode="train" class="on">🏋️ Тренировка</button>
+        <button data-mode="train">🏋️ Тренировка</button>
         <button data-mode="rest">😴 Отдых</button>
       </div>
     </div>
