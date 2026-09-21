@@ -859,12 +859,12 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine){
     }
     if(tk < 1) tk = 1;
 
-   return { yMin: nMin,  const addRefToAxis1 = refLine && refLine.value > 0 && refLine.axis !== 'second';
-  const seriesWithRef = addRefToAxis1 ? series.concat(refLine.value) : series;
-  const axis1 = computeAxis(seriesWithRef); yMax: nMax, step: st, ticks: tk };
+    return { yMin: nMin, yMax: nMax, step: st, ticks: tk };
   }
 
-  const axis1 = computeAxis(series);
+  const addRefToAxis1 = refLine && refLine.value > 0 && refLine.axis !== 'second';
+  const seriesWithRef = addRefToAxis1 ? series.concat(refLine.value) : series;
+  const axis1 = computeAxis(seriesWithRef);
   const yMin = axis1.yMin, yMax = axis1.yMax;
   const yAt = v => pad.t + ch * (1 - (v - yMin) / (yMax - yMin));
 
