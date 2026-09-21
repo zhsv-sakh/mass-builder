@@ -825,12 +825,15 @@ function drawLine(canvas, series, color, labels, selectedIdx){
   if(!series.length || max === 0){ max = 1; min = 0; }
   if(min === Infinity) min = 0;
 
-  if(isPoints && min > 0){
-    const span0 = max - min;
-    if(span0 === 0){ min = min - 1; max = max + 1; }
-  } else {
-    min = Math.max(0, min);
-  }
+if(isPoints && min > 0){
+  // Вес: добавляем отступ сверху и снизу, чтобы 200 г не выглядели как 2 кг
+  const span0 = max - min;
+  const padY = span0 > 0 ? span0 * 0.5 : 1;   // 50% запаса от разброса
+  min = min - padY;
+  max = max + padY;
+} else {
+  min = Math.max(0, min);
+}
 
   const targetTicks = narrow ? 4 : 5;
   let span = max - min;
