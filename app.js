@@ -808,7 +808,7 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine){
   ctx.clearRect(0,0,w,h);
 
   const narrow = w < 380;
-  const pad = {l: narrow ? 34 : 42, r: second ? (narrow ? 34 : 42) : 12, t: 12, b: 34};
+  const pad = {l: narrow ? 34 : 42, r: second ? (narrow ? 34 : 42) : 12, t: 16, b: 40};
   const cw = w - pad.l - pad.r;
   const ch = h - pad.t - pad.b;
   const total = labels.length;
@@ -1126,9 +1126,12 @@ function renderProgress(){
     '#4f8cff',
     labels,
     selIdx,
-    { series: kcals, color: '#ff8a3d' },
-    { value: g.kTrain, color: '#ff453a', label: 'норма ' + g.kTrain + ' ккал', axis: 'second' }
+    null,
+    { value: S.profile.target || 75, color: '#ff453a', label: 'цель ' + (S.profile.target || 75) + ' кг' }
   );
+
+  const wtLabel = document.getElementById('weightTargetLabel');
+  if(wtLabel) wtLabel.textContent = S.profile.target || 75;
 
   const hist = document.getElementById('weightHist');
   const entries = Object.keys(S.weights).sort().reverse().slice(0,10);
@@ -1157,6 +1160,16 @@ function renderProgress(){
     selIdx,
     null,
     { value: g.pTrain, color: '#ff453a', label: 'норма ' + g.pTrain + ' г' }
+  );
+
+  drawLine(
+    document.getElementById('chartKcal'),
+    kcals,
+    '#ff8a3d',
+    labels,
+    selIdx,
+    null,
+    { value: g.kTrain, color: '#ff453a', label: 'норма ' + g.kTrain + ' ккал' }
   );
 
   renderTrainings();
