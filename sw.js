@@ -1,8 +1,12 @@
-const CACHE = 'mass-builder-v4';
+const CACHE = 'mass-builder-v5';
 const ASSETS = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './app.js',
+  './data.js',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 // Установка: кешируем файлы
