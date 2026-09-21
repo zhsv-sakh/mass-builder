@@ -686,7 +686,10 @@ function renderVitamins(){
    ============================================================ */
 function renderMode(){
   const date = currentKey();
-  const mode = getMode(date);
+  const S = getActiveState();
+  const mode = S.modes[date];          // ← именно так, без дефолта 'train'
+  const seg = document.getElementById('modeSeg');
+  seg.classList.toggle('unset', !mode);
   document.querySelectorAll('#modeSeg button').forEach(b=>{
     b.classList.toggle('on', b.dataset.mode===mode);
     b.classList.toggle('rest', b.dataset.mode==='rest' && b.classList.contains('on'));
