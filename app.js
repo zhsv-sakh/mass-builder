@@ -1005,7 +1005,9 @@ function renderProgress(){
     btn.disabled = false;
   }
 
-  const wDays = rangeAround(cur, 7, 6);
+  const back = Math.max(1, Math.floor(chartScale * 0.6));
+  const forward = Math.max(0, chartScale - back - 1);
+  const wDays = rangeAround(cur, back, forward);
   const wLabels = wDays.map(k=> k.slice(8) + '.' + k.slice(5,7));
   const wPoints = [];
   let selIdx = -1;
