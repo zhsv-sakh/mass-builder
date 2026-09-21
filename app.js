@@ -799,7 +799,7 @@ function niceStep(range, targetTicks){
   return nice * pow;
 }
 
-function drawLine(canvas, series, color, labels, selectedIdx){
+function drawLine(canvas, series, color, labels, selectedIdx, second){
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio||1;
   const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -808,31 +808,213 @@ function drawLine(canvas, series, color, labels, selectedIdx){
   ctx.clearRect(0,0,w,h);
 
   const narrow = w < 380;
-  const pad = {l: narrow ? 34 : 42, r: 12, t: 12, b: 24};
+  const pad = {l: narrow ? 34 : 42, r: second ? (narrow ? 34 : 42) : 12, t: 12, b: 24};
   const cw = w - pad.l - pad.r;
   const ch = h - pad.t - pad.b;
   const total = labels.length;
   const xAt = i => pad.l + (total===1 ? cw/2 : cw*i/(total-1));
 
-  const isPoints = series.length && typeof series[0] === 'object';
+  function computeAxis(ser){
+    const pts = ser.length && typeof ser[0] === 'object';
+    let mx = 0, mn = Infinity;
+    if(pts){
+      ser.forEach(p=>{ if(p.y>mx) mx=p.y; if(p.y<mn) mn=p.y; });
+    } else {
+      ser.forEach(v=>{ if(v>mx) mx=v; if(v<mn) mn=v; });
+    }
+    if(!ser.length || mx === 0){ mx = 1; mn = 0; }
+    if(mn === Infinity) mn = 0;
 
-  let max = 0, min = Infinity;
-  if(isPoints){
-    series.forEach(p=>{ if(p.y>max) max=p.y; if(p.y<min) min=p.y; });
-  } else {
-    series.forEach(v=>{ if(v>max) max=v; if(v<min) min=v; });
+    if(pts && mn > 0){
+      const span0 = mx - mn;
+      const padY = span0 > 0 ? span0 * 0.5 : 1;
+      mn = mn - padY;
+      mx = mx + padY;
+    } else if(!pts) {
+      mn = Math.max(0, mn);
+    }
+
+    const tTicks = narrow ? 4 : 5;
+    let sp = mx - mn;
+    if(sp <= 0){ sp = 1; mx = mn + sp; }
+
+    let st = niceStep(sp, tTicks);
+    let nMin = Math.floor(mn / st) * st;
+    let nMax = Math.ceil(mx / st) * st;
+    if(nMax === nMin) nMax = nMin + st;
+
+    let tk = Math.round((nMax - nMin) / st);
+
+    while(tk > tTicks + 1){
+      st = st * 2;
+      nMin = Math.floor(mn / st) * st;
+      nMax = Math.ceil(mx / st) * st;
+      tk = Math.round((nMax - nMin) / st);
+    }
+    while(tk < 3 && st > 0.001){
+      st = st / 2;
+      nMin = Math.floor(mn / st) * st;
+      nMax = Math.ceil(mx / st) * st;
+      tk = Math.round((nMax - nMin) / st);
+    }
+    if(tk < 1) tk = 1;
+
+    return { yMin: nMin, yMax: nMax, step: st, ticks: tk };
   }
-  if(!series.length || max === 0){ max = 1; min = 0; }
-  if(min === Infinity) min = 0;
 
-if(isPoints && min > 0){
-  // Вес: добавляем отступ сверху и снизу, чтобы 200 г не выглядели как 2 кг
-  const span0 = max - min;
-  const padY = span0 > 0 ? span0 * 0.5 : 1;   // 50% запаса от разброса
-  min = min - padY;
-  max = max + padY;
-} else {
-  min = Math.max(0, min);
+  const axis1 = computeAxis(series);
+  const yMin = axis1.yMin, yMax = axis1.yMax;
+  const yAt = v => pad.t + ch * (1 - (v - yMin) / (yMax - yMin));
+
+  let axis2 = null, yAt2 = null;
+  if(second && second.series && second.series.length){
+    axis2 = computeAxis(second.series);
+    yAt2 = v => pad.t + ch * (1 - (v - axis2.yMin) / (axis2.yMax - axis2.yMin));
+  }
+
+  const isPoints = series.length && typeof series[0] === 'object';
+  const decimals = isPoints ? 1 : (Math.abs(axis1.step - Math.round(axis1.step)) < 0.0001 ? 0 : 1);
+
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--line').trim();
+  ctx.lineWidth = 1;
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
+  ctx.font = (narrow ? '9.5px' : '10px') + ' sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+
+  let lastLabel = null;
+  for(let i = 0; i <= axis1.ticks; i++){
+    const v = yMin + axis1.step * i;
+    const y = yAt(v);
+    if(y < pad.t - 1 || y > pad.t + ch + 1) continue;
+
+    ctx.beginPath();
+    ctx.moveTo(pad.l, y);
+    ctx.lineTo(w - pad.r, y);
+    ctx.stroke();
+
+    const label = v.toFixed(decimals);
+    if(label !== lastLabel){
+      ctx.fillText(label, pad.l - 6, y);
+      lastLabel = label;
+    }
+  }
+
+  if(axis2){
+    ctx.textAlign = 'left';
+    ctx.fillStyle = second.color || color;
+    for(let i = 0; i <= axis2.ticks; i++){
+      const v = axis2.yMin + axis2.step * i;
+      const y = yAt2(v);
+      if(y < pad.t - 1 || y > pad.t + ch + 1) continue;
+      ctx.fillText(v.toFixed(decimals), w - pad.r + 6, y);
+    }
+    ctx.textAlign = 'right';
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
+  }
+
+  if(selectedIdx !== undefined && selectedIdx >= 0 && selectedIdx < total){
+    const x = xAt(selectedIdx);
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 0.3;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x, pad.t);
+    ctx.lineTo(x, pad.t + ch);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  if(isPoints){
+    if(series.length >= 2){
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      series.forEach((p, i)=>{
+        const x = xAt(p.x), y = yAt(p.y);
+        if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+    ctx.fillStyle = color;
+    series.forEach(p=>{
+      const x = xAt(p.x), y = yAt(p.y);
+      ctx.beginPath();
+      ctx.arc(x, y, 3.5, 0, Math.PI*2);
+      ctx.fill();
+    });
+  } else {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    series.forEach((v, i)=>{
+      const x = xAt(i), y = yAt(v);
+      if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    ctx.fillStyle = color;
+    const r = total > 60 ? 1.5 : 2.5;
+    series.forEach((v, i)=>{
+      const x = xAt(i), y = yAt(v);
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI*2);
+      ctx.fill();
+    });
+  }
+
+  if(second && second.series && second.series.length){
+    const s2 = second.series;
+    const isPts2 = typeof s2[0] === 'object';
+
+    if(isPts2){
+      if(s2.length >= 2){
+        ctx.strokeStyle = second.color || color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        s2.forEach((p, i)=>{
+          const x = xAt(p.x), y = yAt2(p.y);
+          if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+      ctx.fillStyle = second.color || color;
+      s2.forEach(p=>{
+        const x = xAt(p.x), y = yAt2(p.y);
+        ctx.beginPath();
+        ctx.arc(x, y, 3.5, 0, Math.PI*2);
+        ctx.fill();
+      });
+    } else {
+      ctx.strokeStyle = second.color || color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      s2.forEach((v, i)=>{
+        const x = xAt(i), y = yAt2(v);
+        if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      ctx.fillStyle = second.color || color;
+      const r = total > 60 ? 1.5 : 2.5;
+      s2.forEach((v, i)=>{
+        const x = xAt(i), y = yAt2(v);
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI*2);
+        ctx.fill();
+      });
+    }
+  }
+
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
+  ctx.font = '9.5px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  const stepX = Math.max(1, Math.floor(total / (narrow ? 4 : 6)));
+  labels.forEach((l, i)=>{
+    if(i % stepX !== 0 && i !== total-1) return;
+    ctx.fillText(l, xAt(i), h - 7);
+  });
 }
 
   const targetTicks = narrow ? 4 : 5;
@@ -1005,17 +1187,32 @@ function renderProgress(){
     btn.disabled = false;
   }
 
-  const back = Math.max(1, Math.floor(chartScale * 0.6));
-  const forward = Math.max(0, chartScale - back - 1);
-  const wDays = rangeAround(cur, back, forward);
-  const wLabels = wDays.map(k=> k.slice(8) + '.' + k.slice(5,7));
+  let end = cur > todayKey() ? todayKey() : cur;
+  const days = [];
+  for(let i=chartScale-1;i>=0;i--) days.push(addDays(end, -i));
+
+  const labels = days.map(k=>{
+    const d = parseKey(k);
+    return d.getDate() + '.' + pad2(d.getMonth()+1);
+  });
+  const kcals = days.map(k=> sumDay(k).k);
+  const proteins = days.map(k=> sumDay(k).p);
+
   const wPoints = [];
   let selIdx = -1;
-  wDays.forEach((k,i)=>{
+  days.forEach((k,i)=>{
     if(k===cur) selIdx = i;
     if(S.weights[k]) wPoints.push({x:i, y:S.weights[k]});
   });
-  drawLine(document.getElementById('chartWeight'), wPoints, '#4f8cff', wLabels, selIdx);
+
+  drawLine(
+    document.getElementById('chartWeight'),
+    wPoints,
+    '#4f8cff',
+    labels,
+    selIdx,
+    { series: kcals, color: '#ff8a3d' }
+  );
 
   const hist = document.getElementById('weightHist');
   const entries = Object.keys(S.weights).sort().reverse().slice(0,10);
@@ -1034,25 +1231,9 @@ function renderProgress(){
     };
   });
 
-  let end = cur > todayKey() ? todayKey() : cur;
-  const days = [];
-  for(let i=chartScale-1;i>=0;i--) days.push(addDays(end, -i));
-
-  const labels = days.map(k=>{
-    const d = parseKey(k);
-    return d.getDate() + '.' + pad2(d.getMonth()+1);
-  });
-  const kcals = days.map(k=> sumDay(k).k);
-  const proteins = days.map(k=> sumDay(k).p);
-
-  let selIdxK = -1;
-  days.forEach((k,i)=>{ if(k===cur) selIdxK = i; });
-
-  document.getElementById('kcalHint').textContent = chartScale + ' дней';
   document.getElementById('proteinHint').textContent = chartScale + ' дней';
 
-  drawLine(document.getElementById('chartKcal'), kcals, '#ff8a3d', labels, selIdxK);
-  drawLine(document.getElementById('chartProtein'), proteins, '#35c759', labels, selIdxK);
+  drawLine(document.getElementById('chartProtein'), proteins, '#35c759', labels, selIdx);
 
   renderTrainings();
 }
