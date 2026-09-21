@@ -37,7 +37,7 @@ let state = {
 let activeDate = null;
 let stripAnchor = null;
 let calYear, calMonth;
-let chartScale = 30;
+let chartScale = 7;
 let editingExtra = null;
 let portionFood = null;
 let portionMealId = null;
