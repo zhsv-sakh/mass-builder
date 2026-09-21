@@ -873,7 +873,7 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine){
   if(dataMin === Infinity) dataMin = 0;
 
   // норма попадает в ось, только если она в разумных пределах от данных (±30%)
-  const range = 5;  // ±5 кг от данных — цель в этих пределах видна на графике
+const range = 9999;
   const refInRange = refLine
     && refLine.value > 0
     && refLine.axis !== 'second'
@@ -935,7 +935,7 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine){
     ctx.textAlign = 'right';
     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
   }
-if(refLine && refLine.value > 0 && refInRange){
+if(refLine && refLine.value > 0){
     const useAxis2 = (refLine.axis === 'second' && yAt2);
     const yRef = useAxis2 ? yAt2(refLine.value) : yAt(refLine.value);
     if(yRef >= pad.t && yRef <= pad.t + ch){
