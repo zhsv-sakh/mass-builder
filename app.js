@@ -815,13 +815,14 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine){
   const xAt = i => pad.l + (total===1 ? cw/2 : cw*i/(total-1));
 
   function computeAxis(ser){
-    const pts = ser.length && typeof ser[0] === 'object';
     let mx = 0, mn = Infinity;
-    if(pts){
-      ser.forEach(p=>{ if(p.y>mx) mx=p.y; if(p.y<mn) mn=p.y; });
-    } else {
-      ser.forEach(v=>{ if(v>mx) mx=v; if(v<mn) mn=v; });
-    }
+    ser.forEach(el => {
+      const v = (el && typeof el === 'object') ? el.y : el;
+      if(typeof v !== 'number' || isNaN(v)) return;
+      if(v > mx) mx = v;
+      if(v < mn) mn = v;
+    });
+    const pts = ser.length && typeof ser[0] === 'object';
     if(!ser.length || mx === 0){ mx = 1; mn = 0; }
     if(mn === Infinity) mn = 0;
 
