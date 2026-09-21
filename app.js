@@ -862,7 +862,26 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine){
     return { yMin: nMin, yMax: nMax, step: st, ticks: tk };
   }
 
-  const addRefToAxis1 = refLine && refLine.value > 0 && refLine.axis !== 'second';
+  // определяем границы данных
+  let dataMax = 0, dataMin = Infinity;
+  series.forEach(s => {
+    const v = typeof s === 'object' ? s.y : s;
+    if(v > dataMax) dataMax = v;
+    if(v < dataMin) dataMin = v;
+  });
+  if(!series.length){ dataMax = 1; dataMin = 0; }
+  if(dataMin === Infinity) dataMin = 0;
+
+  // норма попадает в ось, только если она в разумных пределах от данных (±30%)
+  const span = Math.max(dataMax - dataMin, 1);
+  const range = span * 3;  // допуск: цель не дальше 3 «разбросов» от данных
+  const refInRange = refLine
+    && refLine.value > 0
+    && refLine.axis !== 'second'
+    && refLine.value >= dataMin - range
+    && refLine.value <= dataMax + range;
+
+  const addRefToAxis1 = refInRange;
   const seriesWithRef = addRefToAxis1 ? series.concat(refLine.value) : series;
   const axis1 = computeAxis(seriesWithRef);
   const yMin = axis1.yMin, yMax = axis1.yMax;
@@ -917,7 +936,7 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine){
     ctx.textAlign = 'right';
     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
   }
-if(refLine && refLine.value > 0){
+if(refLine && refLine.value > 0 && refInRange){
     const useAxis2 = (refLine.axis === 'second' && yAt2);
     const yRef = useAxis2 ? yAt2(refLine.value) : yAt(refLine.value);
     if(yRef >= pad.t && yRef <= pad.t + ch){
