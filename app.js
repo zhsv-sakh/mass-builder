@@ -808,7 +808,7 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine){
   ctx.clearRect(0,0,w,h);
 
   const narrow = w < 380;
-  const pad = {l: narrow ? 34 : 42, r: second ? (narrow ? 34 : 42) : 12, t: 12, b: 24};
+  const pad = {l: narrow ? 34 : 42, r: second ? (narrow ? 34 : 42) : 12, t: 12, b: 34};
   const cw = w - pad.l - pad.r;
   const ch = h - pad.t - pad.b;
   const total = labels.length;
