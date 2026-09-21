@@ -393,7 +393,7 @@ function getVitamins(date){
 }
 function getMode(date){
   const S = getActiveState();
-  return S.modes[date] || 'train';
+  return S.modes[date] || 'rest';
 }
 function setMode(date, mode){
   if(isReadOnly()) return;
@@ -1128,9 +1128,8 @@ function renderProgress(){
    ТРЕНИРОВКИ
    ============================================================ */
 function renderTrainings(){
-  const cur = currentKey();
   const S = getActiveState();
-  const curDate = parseKey(cur);
+  const curDate = parseKey(todayKey());
   const year = curDate.getFullYear();
   const month = curDate.getMonth();
 
@@ -1751,6 +1750,10 @@ function bindBaseEvents(){
   });
 
   window.addEventListener('beforeunload', ()=>{ saveStateImmediate(); });
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'hidden') saveStateImmediate();
+  });
+  window.addEventListener('pagehide', ()=>{ saveStateImmediate(); });
 
   renderClientsList();
   applyTrainerView();
