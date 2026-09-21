@@ -1058,6 +1058,8 @@ function rangeAround(dateKeyStr, back, forward){
 function renderProgress(){
   const cur = currentKey();
   const S = getActiveState();
+  const goal = S.profile.goal || 'gain';
+  const g = GOALS[goal] || GOALS.gain;
   const sat = isSaturday(cur);
   const existing = S.weights[cur];
   const box = document.getElementById('weightBoxDate');
@@ -1146,9 +1148,6 @@ function renderProgress(){
   });
 
   document.getElementById('proteinHint').textContent = chartScale + ' дней';
-
-  const goal = S.profile.goal || 'gain';
-  const g = GOALS[goal] || GOALS.gain;
 
   drawLine(
     document.getElementById('chartProtein'),
