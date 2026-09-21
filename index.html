@@ -443,7 +443,7 @@
 
   <div class="tabpage" id="tabProgress">
     <div class="chartcard">
-       <h3>⚖️ Вес + 🔥 Калории<span class="scalehint">синий — кг · оранжевый — ккал · <span style="color:#ff453a">— —</span> норма</span></h3>
+          <h3>⚖️ Вес, кг<span class="scalehint"><span style="color:#ff453a">— —</span> цель <span id="weightTargetLabel">75</span> кг</span></h3>
       <div class="weightbox">
         <div class="head">
           <span id="weightBoxDate">—</span>
@@ -467,6 +467,11 @@
       <button data-scale="365">Год</button>
     </div>
 
+
+    <div class="chartcard">
+       <h3>🔥 Калории<span class="scalehint" id="kcalHint">по дням · <span style="color:#ff453a">— —</span> норма</span></h3>
+      <canvas id="chartKcal"></canvas>
+    </div>
 
     <div class="chartcard">
        <h3>🥩 Белок<span class="scalehint" id="proteinHint">по дням · <span style="color:#ff453a">— —</span> норма</span></h3>
