@@ -873,8 +873,7 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine){
   if(dataMin === Infinity) dataMin = 0;
 
   // норма попадает в ось, только если она в разумных пределах от данных (±30%)
-  const span = Math.max(dataMax - dataMin, 1);
-  const range = span * 3;  // допуск: цель не дальше 3 «разбросов» от данных
+  const range = 5;  // ±5 кг от данных — цель в этих пределах видна на графике
   const refInRange = refLine
     && refLine.value > 0
     && refLine.axis !== 'second'
