@@ -799,7 +799,7 @@ function niceStep(range, targetTicks){
   return nice * pow;
 }
 
-function drawLine(canvas, series, color, labels, selectedIdx, second){
+function drawLine(canvas, series, color, labels, selectedIdx, second, refLine){
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio||1;
   const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -859,7 +859,9 @@ function drawLine(canvas, series, color, labels, selectedIdx, second){
     }
     if(tk < 1) tk = 1;
 
-    return { yMin: nMin, yMax: nMax, step: st, ticks: tk };
+   return { yMin: nMin,  const addRefToAxis1 = refLine && refLine.value > 0 && refLine.axis !== 'second';
+  const seriesWithRef = addRefToAxis1 ? series.concat(refLine.value) : series;
+  const axis1 = computeAxis(seriesWithRef); yMax: nMax, step: st, ticks: tk };
   }
 
   const axis1 = computeAxis(series);
@@ -868,7 +870,10 @@ function drawLine(canvas, series, color, labels, selectedIdx, second){
 
   let axis2 = null, yAt2 = null;
   if(second && second.series && second.series.length){
-    axis2 = computeAxis(second.series);
+    const s2WithRef = (refLine && refLine.axis === 'second' && refLine.value > 0)
+      ? second.series.concat(refLine.value)
+      : second.series;
+    axis2 = computeAxis(s2WithRef);
     yAt2 = v => pad.t + ch * (1 - (v - axis2.yMin) / (axis2.yMax - axis2.yMin));
   }
 
@@ -912,7 +917,29 @@ function drawLine(canvas, series, color, labels, selectedIdx, second){
     ctx.textAlign = 'right';
     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
   }
-
+if(refLine && refLine.value > 0){
+    const useAxis2 = (refLine.axis === 'second' && yAt2);
+    const yRef = useAxis2 ? yAt2(refLine.value) : yAt(refLine.value);
+    if(yRef >= pad.t && yRef <= pad.t + ch){
+      ctx.save();
+      ctx.strokeStyle = refLine.color || '#ff453a';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(pad.l, yRef);
+      ctx.lineTo(w - pad.r, yRef);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      if(refLine.label){
+        ctx.fillStyle = refLine.color || '#ff453a';
+        ctx.font = '9px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(refLine.label, w - pad.r - 4, yRef - 3);
+      }
+      ctx.restore();
+    }
+  }
   if(selectedIdx !== undefined && selectedIdx >= 0 && selectedIdx < total){
     const x = xAt(selectedIdx);
     ctx.strokeStyle = color;
@@ -1097,7 +1124,8 @@ function renderProgress(){
     '#4f8cff',
     labels,
     selIdx,
-    { series: kcals, color: '#ff8a3d' }
+    { series: kcals, color: '#ff8a3d' },
+    { value: g.kTrain, color: '#ff453a', label: 'норма ' + g.kTrain + ' ккал', axis: 'second' }
   );
 
   const hist = document.getElementById('weightHist');
@@ -1119,7 +1147,18 @@ function renderProgress(){
 
   document.getElementById('proteinHint').textContent = chartScale + ' дней';
 
-  drawLine(document.getElementById('chartProtein'), proteins, '#35c759', labels, selIdx);
+  const goal = S.profile.goal || 'gain';
+  const g = GOALS[goal] || GOALS.gain;
+
+  drawLine(
+    document.getElementById('chartProtein'),
+    proteins,
+    '#35c759',
+    labels,
+    selIdx,
+    null,
+    { value: g.pTrain, color: '#ff453a', label: 'норма ' + g.pTrain + ' г' }
+  );
 
   renderTrainings();
 }
