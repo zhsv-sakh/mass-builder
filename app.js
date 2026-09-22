@@ -435,6 +435,12 @@ function targets(date){
   };
 }
 function pct(v, max){ return Math.max(0, Math.min(100, Math.round(v/max*100))); }
+function goalColor(v, max){
+  const p = pct(v, max);
+  if(p >= 100) return '#35c759'; // зелёный
+  if(p >= 70)  return '#ffcc00'; // жёлтый
+  return '#ff453a';              // красный
+}
 function barColor(p){
   if(p>=100) return 'linear-gradient(90deg,#35c759,#8fe36b)';
   if(p>=70) return 'linear-gradient(90deg,#ffcc00,#35c759)';
@@ -799,7 +805,7 @@ function niceStep(range, targetTicks){
   return nice * pow;
 }
 
-function drawLine(canvas, series, color, labels, selectedIdx, second, refLine){
+function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, pointColors){
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio||1;
   const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -989,25 +995,47 @@ if(refLine && refLine.value > 0){
       ctx.arc(x, y, 3.5, 0, Math.PI*2);
       ctx.fill();
     });
-  } else {
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    series.forEach((v, i)=>{
-      const x = xAt(i), y = yAt(v);
-      if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-
-    ctx.fillStyle = color;
-    const r = total > 60 ? 1.5 : 2.5;
-    series.forEach((v, i)=>{
-      const x = xAt(i), y = yAt(v);
+ 
+    } else {
+    if(pointColors && pointColors.length === series.length){
+      ctx.lineWidth = 2;
+      for(let i=1;i<series.length;i++){
+        const x1 = xAt(i-1), y1 = yAt(series[i-1]);
+        const x2 = xAt(i),   y2 = yAt(series[i]);
+        ctx.strokeStyle = pointColors[i] || color;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+      const r = total > 60 ? 1.5 : 2.5;
+      series.forEach((v, i)=>{
+        const x = xAt(i), y = yAt(v);
+        ctx.fillStyle = pointColors[i] || color;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI*2);
+        ctx.fill();
+      });
+    } else {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI*2);
-      ctx.fill();
-    });
-  }
+      series.forEach((v, i)=>{
+        const x = xAt(i), y = yAt(v);
+        if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      ctx.fillStyle = color;
+      const r = total > 60 ? 1.5 : 2.5;
+      series.forEach((v, i)=>{
+        const x = xAt(i), y = yAt(v);
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI*2);
+        ctx.fill();
+      });
+    }
+  }  
 
   if(second && second.series && second.series.length){
     const s2 = second.series;
@@ -1171,6 +1199,8 @@ function renderProgress(){
 
   document.getElementById('proteinHint').textContent = chartScale + ' дней';
 
+  const proteinsColors = proteins.map(v => goalColor(v, g.pTrain));
+
   drawLine(
     document.getElementById('chartProtein'),
     proteins,
@@ -1178,8 +1208,11 @@ function renderProgress(){
     labels,
     selIdx,
     null,
-    { value: g.pTrain, color: '#35c759', label: 'норма ' + g.pTrain + ' г' }
+    { value: g.pTrain, color: '#35c759', label: 'норма ' + g.pTrain + ' г' },
+    proteinsColors
   );
+
+  const kcalsColors = kcals.map(v => goalColor(v, g.kTrain));
 
   drawLine(
     document.getElementById('chartKcal'),
@@ -1188,7 +1221,8 @@ function renderProgress(){
     labels,
     selIdx,
     null,
-    { value: g.kTrain, color: '#35c759', label: 'норма ' + g.kTrain + ' ккал' }
+    { value: g.kTrain, color: '#35c759', label: 'норма ' + g.kTrain + ' ккал' },
+    kcalsColors
   );
 
   renderTrainings();
