@@ -437,9 +437,9 @@ function targets(date){
 function pct(v, max){ return Math.max(0, Math.min(100, Math.round(v/max*100))); }
 function goalColor(v, max){
   const p = pct(v, max);
-  if(p >= 100) return '#35c759'; // зелёный
-  if(p >= 70)  return '#ffcc00'; // жёлтый
-  return '#ff453a';              // красный
+  if(p >= 90) return '#35c759'; // зелёный
+  if(p >= 50) return '#ffcc00'; // жёлтый
+  return '#ff453a';             // красный
 }
 function barColor(p){
   if(p>=100) return 'linear-gradient(90deg,#35c759,#8fe36b)';
