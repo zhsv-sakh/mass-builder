@@ -805,7 +805,7 @@ function niceStep(range, targetTicks){
   return nice * pow;
 }
 
-function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, pointColors){
+function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, pointColors, axisOverride){
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio||1;
   const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -887,9 +887,22 @@ const range = 9999;
     && refLine.value >= dataMin - range
     && refLine.value <= dataMax + range;
 
-  const addRefToAxis1 = refInRange;
-  const seriesWithRef = addRefToAxis1 ? series.concat(refLine.value) : series;
-  const axis1 = computeAxis(seriesWithRef);
+  let axis1;
+  if(axisOverride && typeof axisOverride.yMin === 'number' && typeof axisOverride.yMax === 'number'){
+    // считаем шаг сетки под диапазон
+    const span = axisOverride.yMax - axisOverride.yMin;
+    const tTicks = narrow ? 4 : 5;
+    let st = niceStep(span, tTicks);
+    // подгоняем шаг так, чтобы было 3–6 делений
+    let tk = Math.round(span / st);
+    while(tk > tTicks + 1){ st = st * 2; tk = Math.round(span / st); }
+    while(tk < 3 && st > 0.001){ st = st / 2; tk = Math.round(span / st); }
+    axis1 = { yMin: axisOverride.yMin, yMax: axisOverride.yMax, step: st, ticks: tk };
+  } else {
+    const addRefToAxis1 = refInRange;
+    const seriesWithRef = addRefToAxis1 ? series.concat(refLine.value) : series;
+    axis1 = computeAxis(seriesWithRef);
+  }
   const yMin = axis1.yMin, yMax = axis1.yMax;
   const yAt = v => pad.t + ch * (1 - (v - yMin) / (yMax - yMin));
 
@@ -1167,6 +1180,20 @@ function renderProgress(){
     if(S.weights[k]) wPoints.push({x:i, y:S.weights[k]});
   });
 
+  // Ось веса: снизу на 0.2 кг ниже минимального веса, сверху на 0.3 кг выше цели
+  let weightAxis = null;
+  if(wPoints.length){
+    const weights = wPoints.map(p => p.y);
+    const wMin = Math.min.apply(null, weights);
+    const target = S.profile.target || 75;
+    weightAxis = {
+      yMin: Math.round((wMin - 0.2) * 10) / 10,
+      yMax: Math.round((target + 0.3) * 10) / 10
+    };
+    // защита от вырожденного случая (вес уже выше цели)
+    if(weightAxis.yMax <= weightAxis.yMin) weightAxis.yMax = weightAxis.yMin + 1;
+  }
+
   drawLine(
     document.getElementById('chartWeight'),
     wPoints,
@@ -1174,7 +1201,9 @@ function renderProgress(){
     labels,
     selIdx,
     null,
-    { value: S.profile.target || 75, color: '#35c759', label: 'цель ' + (S.profile.target || 75) + ' кг' }
+    { value: S.profile.target || 75, color: '#35c759', label: 'цель ' + (S.profile.target || 75) + ' кг' },
+    null,
+    weightAxis
   );
 
   const wtLabel = document.getElementById('weightTargetLabel');
