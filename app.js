@@ -437,9 +437,28 @@ function targets(date){
 function pct(v, max){ return Math.max(0, Math.min(100, Math.round(v/max*100))); }
 function goalColor(v, max){
   const p = pct(v, max);
-  if(p >= 90) return '#35c759'; // зелёный
-  if(p >= 50) return '#ffcc00'; // жёлтый
-  return '#ff453a';             // красный
+  // опорные точки: [процент, R, G, B]
+  const stops = [
+    [  0, 255,  69,  58], // красный
+    [ 50, 255, 138,  61], // оранжевый
+    [ 75, 255, 204,   0], // жёлтый
+    [ 90, 143, 227, 107], // салатовый
+    [100,  53, 199,  89]  // зелёный
+  ];
+  if(p <= stops[0][0]) return `rgb(${stops[0][1]},${stops[0][2]},${stops[0][3]})`;
+  if(p >= stops[stops.length-1][0]) return `rgb(${stops[stops.length-1][1]},${stops[stops.length-1][2]},${stops[stops.length-1][3]})`;
+  for(let i=1;i<stops.length;i++){
+    const [p0,r0,g0,b0] = stops[i-1];
+    const [p1,r1,g1,b1] = stops[i];
+    if(p <= p1){
+      const t = (p - p0) / (p1 - p0);
+      const r = Math.round(r0 + (r1-r0)*t);
+      const g = Math.round(g0 + (g1-g0)*t);
+      const b = Math.round(b0 + (b1-b0)*t);
+      return `rgb(${r},${g},${b})`;
+    }
+  }
+  return '#ff453a';
 }
 function barColor(p){
   if(p>=100) return 'linear-gradient(90deg,#35c759,#8fe36b)';
@@ -1010,12 +1029,19 @@ if(refLine && refLine.value > 0){
     });
  
     } else {
+       
     if(pointColors && pointColors.length === series.length){
       ctx.lineWidth = 2;
       for(let i=1;i<series.length;i++){
         const x1 = xAt(i-1), y1 = yAt(series[i-1]);
         const x2 = xAt(i),   y2 = yAt(series[i]);
-        ctx.strokeStyle = pointColors[i] || color;
+        const c1 = pointColors[i-1] || color;
+        const c2 = pointColors[i]   || color;
+        // градиент от цвета точки i-1 к цвету точки i
+        const grad = ctx.createLinearGradient(x1, y1, x2, y2);
+        grad.addColorStop(0, c1);
+        grad.addColorStop(1, c2);
+        ctx.strokeStyle = grad;
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
@@ -1030,6 +1056,8 @@ if(refLine && refLine.value > 0){
         ctx.fill();
       });
     } else {
+
+        
       ctx.strokeStyle = color;
       ctx.lineWidth = 2;
       ctx.beginPath();
