@@ -441,20 +441,8 @@
     <div class="totals"><div class="grid" id="totalsGrid"></div></div>
   </div>
 
-  <div class="tabpage" id="tabProgress">
     <div class="chartcard">
           <h3>⚖️ Вес, кг<span class="scalehint"><span style="color:#ff453a">— —</span> цель <span id="weightTargetLabel">75</span> кг</span></h3>
-      <div class="weightbox">
-        <div class="head">
-          <span id="weightBoxDate">—</span>
-          <b id="weightBoxNow">—</b>
-        </div>
-        <div class="weightrow">
-          <input type="number" step="0.1" id="weightInput" placeholder="Например, 67.5" inputmode="decimal">
-          <button id="btnSaveWeight">Записать</button>
-        </div>
-        <div class="weightnote" id="weightNote"></div>
-      </div>
       <canvas id="chartWeight"></canvas>
       <div class="hist" id="weightHist"></div>
     </div>
@@ -482,6 +470,21 @@
       <h3>🏋️ Тренировки<span class="scalehint" id="trainHint">за месяц</span></h3>
       <div class="trainmonth" id="trainMonth">—</div>
       <div class="trainstats3" id="trainStats"></div>
+    </div>
+
+    <div class="chartcard">
+      <h3>⚖️ Записать вес</h3>
+      <div class="weightbox">
+        <div class="head">
+          <span id="weightBoxDate">—</span>
+          <b id="weightBoxNow">—</b>
+        </div>
+        <div class="weightrow">
+          <input type="number" step="0.1" id="weightInput" placeholder="Например, 67.5" inputmode="decimal">
+          <button id="btnSaveWeight">Записать</button>
+        </div>
+        <div class="weightnote" id="weightNote"></div>
+      </div>
     </div>
   </div>
 </div>
