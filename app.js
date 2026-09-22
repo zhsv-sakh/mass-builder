@@ -941,7 +941,7 @@ if(refLine && refLine.value > 0){
     const yRef = useAxis2 ? yAt2(refLine.value) : yAt(refLine.value);
     if(yRef >= pad.t && yRef <= pad.t + ch){
       ctx.save();
-      ctx.strokeStyle = refLine.color || '#ff453a';
+      ctx.strokeStyle = refLine.color || '#35c759';
       ctx.lineWidth = 1.5;
       ctx.setLineDash([6, 4]);
       ctx.beginPath();
@@ -950,7 +950,7 @@ if(refLine && refLine.value > 0){
       ctx.stroke();
       ctx.setLineDash([]);
       if(refLine.label){
-        ctx.fillStyle = refLine.color || '#ff453a';
+        ctx.fillStyle = refLine.color || '#35c759';
         ctx.font = '9px sans-serif';
         ctx.textAlign = 'right';
         ctx.textBaseline = 'bottom';
@@ -1146,7 +1146,7 @@ function renderProgress(){
     labels,
     selIdx,
     null,
-    { value: S.profile.target || 75, color: '#ff453a', label: 'цель ' + (S.profile.target || 75) + ' кг' }
+    { value: S.profile.target || 75, color: '#35c759', label: 'цель ' + (S.profile.target || 75) + ' кг' }
   );
 
   const wtLabel = document.getElementById('weightTargetLabel');
@@ -1178,7 +1178,7 @@ function renderProgress(){
     labels,
     selIdx,
     null,
-    { value: g.pTrain, color: '#ff453a', label: 'норма ' + g.pTrain + ' г' }
+    { value: g.pTrain, color: '#35c759', label: 'норма ' + g.pTrain + ' г' }
   );
 
   drawLine(
@@ -1188,7 +1188,7 @@ function renderProgress(){
     labels,
     selIdx,
     null,
-    { value: g.kTrain, color: '#ff453a', label: 'норма ' + g.kTrain + ' ккал' }
+    { value: g.kTrain, color: '#35c759', label: 'норма ' + g.kTrain + ' ккал' }
   );
 
   renderTrainings();
