@@ -832,9 +832,9 @@ function niceStep(range, targetTicks){
    ============================================================ */
 function drawValueLabels(ctx, series, xAt, yAt, isPoints, pad, w, total){
   if(!series.length) return;
-  if(total > 30) return; // слишком много точек — не подписываем
+  if(series.length > 30) return; // слишком много точек — не подписываем
 
-  const step = total > 14 ? 2 : 1;
+  const step = series.length > 14 ? 2 : 1;
 
   const muted = getComputedStyle(document.documentElement)
                   .getPropertyValue('--muted').trim();
@@ -850,8 +850,8 @@ function drawValueLabels(ctx, series, xAt, yAt, isPoints, pad, w, total){
       if(i % step !== 0 && i !== series.length - 1) return;
       const x = xAt(p.x);
       const y = yAt(p.y);
-      const label = Number(p.y).toFixed(1);
-      ctx.fillText(label, x, y + 6);
+      if(x < pad.l + 12 || x > w - pad.r - 12) return; // не вылезаем по краям
+      ctx.fillText(Number(p.y).toFixed(1), x, y + 6);
     });
   } else {
     // ккал/белок — подпись СВЕРХУ от точки
@@ -861,7 +861,8 @@ function drawValueLabels(ctx, series, xAt, yAt, isPoints, pad, w, total){
       if(v === 0) return;
       const x = xAt(i);
       const y = yAt(v);
-      if(y - 4 < pad.t) return;
+      if(y - 4 < pad.t) return;                        // не вылезаем сверху
+      if(x < pad.l + 12 || x > w - pad.r - 12) return; // не вылезаем по краям
       ctx.fillText(String(Math.round(v)), x, y - 4);
     });
   }
@@ -875,7 +876,6 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, p
   canvas.width = w*dpr; canvas.height = h*dpr;
   ctx.scale(dpr,dpr);
   ctx.clearRect(0,0,w,h);
-  canvas._labels = labels;
 
   const narrow = w < 380;
   const pad = {l: narrow ? 34 : 42, r: second ? (narrow ? 34 : 42) : 12, t: 16, b: 40};
@@ -1101,9 +1101,7 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, p
       ctx.fill();
     });
 
-    canvas._pts = series.map((p)=> ({ x: xAt(p.x), y: yAt(p.y), val: p.y, idx: p.x }));
-
-     drawValueLabels(ctx, series, xAt, yAt, true, pad, w, total);
+    drawValueLabels(ctx, series, xAt, yAt, true, pad, w, total);
      
     } else {
        
@@ -1153,7 +1151,6 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, p
         ctx.fill();
       });
     }
-    canvas._pts = series.map((v, i)=> ({ x: xAt(i), y: yAt(v), val: v, idx: i }));
     drawValueLabels(ctx, series, xAt, yAt, false, pad, w, total);
   }   
 
