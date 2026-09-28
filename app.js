@@ -1190,7 +1190,7 @@ function renderProgress(){
 
   const d = parseKey(cur);
   const wd = ['вс','пн','вт','ср','чт','пт','сб'][d.getDay()];
-  box.textContent = `${cur} (${wd})`;
+  box.textContent = `${fmtDateShort(cur)} (${wd})`;
   now.textContent = existing ? existing+' кг' : 'нет записи';
 
   if(existing){
@@ -1555,7 +1555,7 @@ function updateBackupInfo(){
     btn.textContent = '⏪ Откатить на утро (недоступно сегодня)';
   } else if(auto && auto.state){
     btn.disabled = false;
-    btn.textContent = '⏪ Откатить на ' + (auto._date || 'прошлый раз');
+    btn.textContent = '⏪ Откатить на ' + (auto._date ? fmtDateShort(auto._date) : 'прошлый раз');
   } else {
     btn.disabled = true;
     btn.textContent = '⏪ Откатить (снимка нет)';
@@ -1620,7 +1620,7 @@ function autoRestore(){
     if(!auto || !auto.state){ toast('Снимка нет'); return; }
     const ok = confirm(
       'Восстановить данные из автоснимка?\n\n' +
-      'Снимок от: ' + (auto._date || '?') + '\n\n' +
+      'Снимок от: ' + (auto._date ? fmtDateShort(auto._date) : '?') + '\n\n' +
       'Все текущие данные будут ЗАМЕНЕНЫ. Продолжить?'
     );
     if(!ok) return;
@@ -1715,7 +1715,7 @@ function bindBaseEvents(){
       if(isReadOnly()){ toast('Режим просмотра'); return; }
       const date = currentKey();
       setMode(date, b.dataset.mode);
-      if(date !== todayKey()) toast('Режим для '+date);
+      if(date !== todayKey()) toast('Режим для '+fmtDateShort(date));
       renderAll();
     };
   });
