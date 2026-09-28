@@ -116,12 +116,9 @@
 
   .items{padding:0 12px 2px;position:relative;z-index:1}
   .item{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--line);
-    cursor:pointer;touch-action:manipulation;border-radius:8px;transition:.12s}
+    cursor:pointer;touch-action:manipulation;border-radius:8px;transition:background .2s ease}
   .item:active{background:var(--card2)}
   .item:last-child{border-bottom:0}
-
-  
-  .item{transition:background .2s ease}
   .item .chk{width:24px;height:24px;border-radius:8px;border:2px solid var(--muted);flex:none;
     display:flex;align-items:center;justify-content:center;font-size:14px;color:transparent;
     transition:background .2s ease,border-color .2s ease,color .15s ease}
@@ -460,7 +457,6 @@
     <div class="chartcard">
            <h3>⚖️ Вес, кг<span class="scalehint"><span style="color:#35c759">— —</span> цель <span id="weightTargetLabel">75</span> кг</span></h3>
       <canvas id="chartWeight"></canvas>
-      <div class="chart-tip" id="tipWeight"></div>
       <div class="hist" id="weightHist"></div>
     </div>
 
@@ -476,14 +472,12 @@
     <div class="chartcard">
               <h3>🔥 Калории<span class="scalehint" id="kcalHint">по дням · <span style="color:#35c759">— —</span> норма</span></h3>
       <canvas id="chartKcal"></canvas>
-      <div class="chart-tip" id="tipKcal"></div>
-    </div>
+      </div>
 
     <div class="chartcard">
               <h3>🥩 Белок<span class="scalehint" id="proteinHint">по дням · <span style="color:#35c759">— —</span> норма</span></h3>
       <canvas id="chartProtein"></canvas>
-      <div class="chart-tip" id="tipProtein"></div>
-    </div>
+      </div>
 
     <div class="chartcard">
       <h3>🏋️ Тренировки<span class="scalehint" id="trainHint">за месяц</span></h3>
