@@ -852,10 +852,8 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, p
     if(mn === Infinity) mn = 0;
 
     if(pts && mn > 0){
-      const span0 = mx - mn;
-      const padY = span0 > 0 ? span0 * 0.5 : 1;
-      mn = mn - padY;
-      mx = mx + padY;
+      mn = mn - 0.2;
+      mx = mx + 0.2;
     } else if(!pts) {
       mn = Math.max(0, mn);
     }
@@ -888,40 +886,20 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, p
     return { yMin: nMin, yMax: nMax, step: st, ticks: tk };
   }
 
-  // определяем границы данных
-  let dataMax = 0, dataMin = Infinity;
-  series.forEach(s => {
-    const v = typeof s === 'object' ? s.y : s;
-    if(v > dataMax) dataMax = v;
-    if(v < dataMin) dataMin = v;
-  });
-  if(!series.length){ dataMax = 1; dataMin = 0; }
-  if(dataMin === Infinity) dataMin = 0;
-
-  // норма попадает в ось, только если она в разумных пределах от данных (±30%)
-const range = 9999;
-  const refInRange = refLine
-    && refLine.value > 0
-    && refLine.axis !== 'second'
-    && refLine.value >= dataMin - range
-    && refLine.value <= dataMax + range;
-
+  // норма НЕ добавляется в ось — ось строится только по данным
   let axis1;
   if(axisOverride && typeof axisOverride.yMin === 'number' && typeof axisOverride.yMax === 'number'){
-    // считаем шаг сетки под диапазон
     const span = axisOverride.yMax - axisOverride.yMin;
     const tTicks = narrow ? 4 : 5;
     let st = niceStep(span, tTicks);
-    // подгоняем шаг так, чтобы было 3–6 делений
     let tk = Math.round(span / st);
     while(tk > tTicks + 1){ st = st * 2; tk = Math.round(span / st); }
     while(tk < 3 && st > 0.001){ st = st / 2; tk = Math.round(span / st); }
     axis1 = { yMin: axisOverride.yMin, yMax: axisOverride.yMax, step: st, ticks: tk };
   } else {
-    const addRefToAxis1 = refInRange;
-    const seriesWithRef = addRefToAxis1 ? series.concat(refLine.value) : series;
-    axis1 = computeAxis(seriesWithRef);
+    axis1 = computeAxis(series);
   }
+
   const yMin = axis1.yMin, yMax = axis1.yMax;
   const yAt = v => pad.t + ch * (1 - (v - yMin) / (yMax - yMin));
 
@@ -974,12 +952,19 @@ const range = 9999;
     ctx.textAlign = 'right';
     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim();
   }
-if(refLine && refLine.value > 0){
+
+  if(refLine && refLine.value > 0){
     const useAxis2 = (refLine.axis === 'second' && yAt2);
     const yRef = useAxis2 ? yAt2(refLine.value) : yAt(refLine.value);
+
+    ctx.save();
+    ctx.strokeStyle = refLine.color || '#35c759';
+    ctx.fillStyle = refLine.color || '#35c759';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'right';
+
     if(yRef >= pad.t && yRef <= pad.t + ch){
-      ctx.save();
-      ctx.strokeStyle = refLine.color || '#35c759';
+      // цель в оси — обычный пунктир
       ctx.lineWidth = 1.5;
       ctx.setLineDash([6, 4]);
       ctx.beginPath();
@@ -988,15 +973,58 @@ if(refLine && refLine.value > 0){
       ctx.stroke();
       ctx.setLineDash([]);
       if(refLine.label){
-        ctx.fillStyle = refLine.color || '#35c759';
-        ctx.font = '9px sans-serif';
-        ctx.textAlign = 'right';
         ctx.textBaseline = 'bottom';
         ctx.fillText(refLine.label, w - pad.r - 4, yRef - 3);
       }
-      ctx.restore();
+    } else if(yRef < pad.t){
+      // цель выше графика — пунктир у верхнего края + стрелка вверх
+      const yTop = pad.t + 2;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(pad.l, yTop);
+      ctx.lineTo(w - pad.r, yTop);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const ax = w - pad.r - 8;
+      ctx.beginPath();
+      ctx.moveTo(ax, yTop - 8);
+      ctx.lineTo(ax - 4, yTop - 2);
+      ctx.lineTo(ax + 4, yTop - 2);
+      ctx.closePath();
+      ctx.fill();
+
+      if(refLine.label){
+        ctx.textBaseline = 'top';
+        ctx.fillText('↑ ' + refLine.label, w - pad.r - 4, yTop + 3);
+      }
+    } else {
+      // цель ниже графика — пунктир у нижнего края + стрелка вниз
+      const yBot = pad.t + ch - 2;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(pad.l, yBot);
+      ctx.lineTo(w - pad.r, yBot);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const ax = w - pad.r - 8;
+      ctx.beginPath();
+      ctx.moveTo(ax, yBot + 8);
+      ctx.lineTo(ax - 4, yBot + 2);
+      ctx.lineTo(ax + 4, yBot + 2);
+      ctx.closePath();
+      ctx.fill();
+
+      if(refLine.label){
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('↓ ' + refLine.label, w - pad.r - 4, yBot - 3);
+      }
     }
-  }
+    ctx.restore();
+  }   
   if(selectedIdx !== undefined && selectedIdx >= 0 && selectedIdx < total){
     const x = xAt(selectedIdx);
     ctx.strokeStyle = color;
@@ -1208,20 +1236,6 @@ function renderProgress(){
     if(S.weights[k]) wPoints.push({x:i, y:S.weights[k]});
   });
 
-  // Ось веса: снизу на 0.2 кг ниже минимального веса, сверху на 0.3 кг выше цели
-  let weightAxis = null;
-  if(wPoints.length){
-    const weights = wPoints.map(p => p.y);
-    const wMin = Math.min.apply(null, weights);
-    const target = S.profile.target || 75;
-    weightAxis = {
-      yMin: Math.round((wMin - 0.2) * 10) / 10,
-      yMax: Math.round((target + 0.3) * 10) / 10
-    };
-    // защита от вырожденного случая (вес уже выше цели)
-    if(weightAxis.yMax <= weightAxis.yMin) weightAxis.yMax = weightAxis.yMin + 1;
-  }
-
   drawLine(
     document.getElementById('chartWeight'),
     wPoints,
@@ -1229,9 +1243,7 @@ function renderProgress(){
     labels,
     selIdx,
     null,
-    { value: S.profile.target || 75, color: '#35c759', label: 'цель ' + (S.profile.target || 75) + ' кг' },
-    null,
-    weightAxis
+    { value: S.profile.target || 75, color: '#35c759', label: 'цель ' + (S.profile.target || 75) + ' кг' }
   );
 
   const wtLabel = document.getElementById('weightTargetLabel');
