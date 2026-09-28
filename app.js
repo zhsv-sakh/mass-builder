@@ -827,6 +827,46 @@ function niceStep(range, targetTicks){
   else nice = 10;
   return nice * pow;
 }
+/* ============================================================
+   ПОДПИСИ ЗНАЧЕНИЙ НА ГРАФИКЕ
+   ============================================================ */
+function drawValueLabels(ctx, series, xAt, yAt, isPoints, pad, w, total){
+  if(!series.length) return;
+  if(total > 30) return; // слишком много точек — не подписываем
+
+  const step = total > 14 ? 2 : 1;
+
+  const muted = getComputedStyle(document.documentElement)
+                  .getPropertyValue('--muted').trim();
+  ctx.save();
+  ctx.fillStyle = muted;
+  ctx.font = '9px sans-serif';
+  ctx.textAlign = 'center';
+
+  if(isPoints){
+    // вес — подпись СНИЗУ от точки
+    ctx.textBaseline = 'top';
+    series.forEach((p, i)=>{
+      if(i % step !== 0 && i !== series.length - 1) return;
+      const x = xAt(p.x);
+      const y = yAt(p.y);
+      const label = Number(p.y).toFixed(1);
+      ctx.fillText(label, x, y + 6);
+    });
+  } else {
+    // ккал/белок — подпись СВЕРХУ от точки
+    ctx.textBaseline = 'bottom';
+    series.forEach((v, i)=>{
+      if(i % step !== 0 && i !== series.length - 1) return;
+      if(v === 0) return;
+      const x = xAt(i);
+      const y = yAt(v);
+      if(y - 4 < pad.t) return;
+      ctx.fillText(String(Math.round(v)), x, y - 4);
+    });
+  }
+  ctx.restore();
+}
 
 function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, pointColors, axisOverride){
   const ctx = canvas.getContext('2d');
@@ -1062,7 +1102,9 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, p
     });
 
     canvas._pts = series.map((p)=> ({ x: xAt(p.x), y: yAt(p.y), val: p.y, idx: p.x }));
- 
+
+     drawValueLabels(ctx, series, xAt, yAt, true, pad, w, total);
+     
     } else {
        
     if(pointColors && pointColors.length === series.length){
@@ -1112,6 +1154,7 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, p
       });
     }
     canvas._pts = series.map((v, i)=> ({ x: xAt(i), y: yAt(v), val: v, idx: i }));
+    drawValueLabels(ctx, series, xAt, yAt, false, pad, w, total);
   }   
 
   if(second && second.series && second.series.length){
@@ -1964,50 +2007,7 @@ function bindBaseEvents(){
   renderClientsList();
   applyTrainerView();
 }
-/* ============================================================
-   ТАП ПО ГРАФИКУ — тултип со значением
-   ============================================================ */
-function bindChartTaps(){
-  const map = [
-    { canvas:'chartWeight',  tip:'tipWeight',  unit:'кг',   fmt: v => v.toFixed(1) },
-    { canvas:'chartKcal',    tip:'tipKcal',    unit:'ккал', fmt: v => Math.round(v) },
-    { canvas:'chartProtein', tip:'tipProtein', unit:'г',    fmt: v => Math.round(v) }
-  ];
-  map.forEach(({canvas, tip, unit, fmt})=>{
-    const c = document.getElementById(canvas);
-    const t = document.getElementById(tip);
-    if(!c || !t) return;
 
-    const handler = (ev)=>{
-      if(!c._pts || !c._pts.length){ t.classList.remove('on'); return; }
-      const rect = c.getBoundingClientRect();
-      const cx = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
-      const cy = (ev.touches ? ev.touches[0].clientY : ev.clientY) - rect.top;
-
-      let best = null, bestDist = Infinity;
-      c._pts.forEach(p=>{
-        const dx = Math.abs(p.x - cx);
-        const dy = Math.abs(p.y - cy);
-        // ближайшая по x, но если по y тоже близко — бонус
-        const dist = dx + dy * 0.3;
-        if(dist < bestDist){ bestDist = dist; best = p; }
-      });
-      if(!best || bestDist > 40){ t.classList.remove('on'); return; }
-
-      const labels = c._labels || [];
-      const label = labels[best.idx] || '';
-      t.innerHTML = `<span>${label}</span><b>${fmt(best.val)} ${unit}</b>`;
-      t.style.left = Math.max(4, Math.min(c.clientWidth - 100, best.x - 40)) + 'px';
-      t.style.top  = Math.max(2, best.y - 36) + 'px';
-      t.classList.add('on');
-      clearTimeout(t._hide);
-      t._hide = setTimeout(()=> t.classList.remove('on'), 2000);
-    };
-
-    c.addEventListener('click', handler);
-    c.addEventListener('touchstart', handler, {passive:true});
-  });
-}
 /* ============================================================
    СОБЫТИЯ — делегирование на список приёмов
    ============================================================ */
@@ -2150,7 +2150,6 @@ stripAnchor = todayKey();
 autoSnapshot();
 bindBaseEvents();
 bindMealEvents();
-bindChartTaps();
 renderAll();
 updateBackupInfo();
 
