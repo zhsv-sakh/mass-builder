@@ -835,6 +835,7 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, p
   canvas.width = w*dpr; canvas.height = h*dpr;
   ctx.scale(dpr,dpr);
   ctx.clearRect(0,0,w,h);
+  canvas._labels = labels;
 
   const narrow = w < 380;
   const pad = {l: narrow ? 34 : 42, r: second ? (narrow ? 34 : 42) : 12, t: 16, b: 40};
@@ -1059,6 +1060,8 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, p
       ctx.arc(x, y, 3.5, 0, Math.PI*2);
       ctx.fill();
     });
+
+    canvas._pts = series.map((p)=> ({ x: xAt(p.x), y: yAt(p.y), val: p.y, idx: p.x }));
  
     } else {
        
@@ -1108,7 +1111,8 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, p
         ctx.fill();
       });
     }
-  }  
+    canvas._pts = series.map((v, i)=> ({ x: xAt(i), y: yAt(v), val: v, idx: i }));
+  }   
 
   if(second && second.series && second.series.length){
     const s2 = second.series;
@@ -1960,7 +1964,50 @@ function bindBaseEvents(){
   renderClientsList();
   applyTrainerView();
 }
+/* ============================================================
+   ТАП ПО ГРАФИКУ — тултип со значением
+   ============================================================ */
+function bindChartTaps(){
+  const map = [
+    { canvas:'chartWeight',  tip:'tipWeight',  unit:'кг',   fmt: v => v.toFixed(1) },
+    { canvas:'chartKcal',    tip:'tipKcal',    unit:'ккал', fmt: v => Math.round(v) },
+    { canvas:'chartProtein', tip:'tipProtein', unit:'г',    fmt: v => Math.round(v) }
+  ];
+  map.forEach(({canvas, tip, unit, fmt})=>{
+    const c = document.getElementById(canvas);
+    const t = document.getElementById(tip);
+    if(!c || !t) return;
 
+    const handler = (ev)=>{
+      if(!c._pts || !c._pts.length){ t.classList.remove('on'); return; }
+      const rect = c.getBoundingClientRect();
+      const cx = (ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left;
+      const cy = (ev.touches ? ev.touches[0].clientY : ev.clientY) - rect.top;
+
+      let best = null, bestDist = Infinity;
+      c._pts.forEach(p=>{
+        const dx = Math.abs(p.x - cx);
+        const dy = Math.abs(p.y - cy);
+        // ближайшая по x, но если по y тоже близко — бонус
+        const dist = dx + dy * 0.3;
+        if(dist < bestDist){ bestDist = dist; best = p; }
+      });
+      if(!best || bestDist > 40){ t.classList.remove('on'); return; }
+
+      const labels = c._labels || [];
+      const label = labels[best.idx] || '';
+      t.innerHTML = `<span>${label}</span><b>${fmt(best.val)} ${unit}</b>`;
+      t.style.left = Math.max(4, Math.min(c.clientWidth - 100, best.x - 40)) + 'px';
+      t.style.top  = Math.max(2, best.y - 36) + 'px';
+      t.classList.add('on');
+      clearTimeout(t._hide);
+      t._hide = setTimeout(()=> t.classList.remove('on'), 2000);
+    };
+
+    c.addEventListener('click', handler);
+    c.addEventListener('touchstart', handler, {passive:true});
+  });
+}
 /* ============================================================
    СОБЫТИЯ — делегирование на список приёмов
    ============================================================ */
@@ -2103,6 +2150,7 @@ stripAnchor = todayKey();
 autoSnapshot();
 bindBaseEvents();
 bindMealEvents();
+bindChartTaps();
 renderAll();
 updateBackupInfo();
 
