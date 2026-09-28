@@ -296,6 +296,10 @@ function updateSyncInfo(errMsg){
    ДАТЫ
    ============================================================ */
 function pad2(n){ return String(n).padStart(2,'0'); }
+function fmtDateShort(iso){
+  const [y,m,d] = iso.split('-');
+  return d + '.' + m + '.' + y;
+}
 function dateKey(d){
   const dt = d || new Date();
   return dt.getFullYear()+'-'+pad2(dt.getMonth()+1)+'-'+pad2(dt.getDate());
@@ -1250,14 +1254,39 @@ function renderProgress(){
   if(wtLabel) wtLabel.textContent = S.profile.target || 75;
 
   const hist = document.getElementById('weightHist');
-  const entries = Object.keys(S.weights).sort().reverse().slice(0,10);
+  const allKeys = Object.keys(S.weights).sort();        // старые → новые
+  const entries = allKeys.slice().reverse().slice(0, 20); // свежие сверху, лимит 20
+
   hist.innerHTML = entries.length
-    ? entries.map(k=>{
+    ? entries.map((k, i)=>{
         const dd = parseKey(k);
         const wday = ['вс','пн','вт','ср','чт','пт','сб'][dd.getDay()];
-        return `<div data-hist-key="${k}"><span>${k} (${wday})</span><b>${S.weights[k]} кг</b></div>`;
+
+        // дельта к предыдущей по дате (более старой) записи
+        let deltaHtml = '';
+        const idxAll = allKeys.indexOf(k);
+        if(idxAll > 0){
+          const prevKey = allKeys[idxAll - 1];
+          const diffKg = S.weights[k] - S.weights[prevKey];
+          const days = Math.round((parseKey(k) - parseKey(prevKey)) / 86400000);
+          const sign = diffKg > 0.0001 ? '+' : (diffKg < -0.0001 ? '−' : '');
+          const abs = Math.abs(diffKg).toFixed(1);
+          const cls = diffKg > 0.0001 ? 'up' : (diffKg < -0.0001 ? 'down' : 'flat');
+          const dayWord = days === 1 ? 'день' : (days >= 2 && days <= 4 ? 'дня' : 'дней');
+          const val = diffKg === 0 ? '0.0' : sign + abs;
+          deltaHtml = `<span class="delta ${cls}">${val} за ${days} ${dayWord}</span>`;
+        } else {
+          deltaHtml = `<span class="delta flat">—</span>`;
+        }
+
+        return `<div data-hist-key="${k}">
+          <span class="hleft">${fmtDateShort(k)} (${wday})</span>
+          <b>${S.weights[k]} кг</b>
+          ${deltaHtml}
+        </div>`;
       }).join('')
     : '<div class="empty">Пока нет записей веса</div>';
+
   hist.querySelectorAll('[data-hist-key]').forEach(el=>{
     el.onclick = ()=>{
       activeDate = el.dataset.histKey;
