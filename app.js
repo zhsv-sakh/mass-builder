@@ -145,11 +145,16 @@ function applyTrainerView(){
     picker.innerHTML = '<option value="">— свои —</option>' +
       clients.map(c=>`<option value="${c.owner}/${c.repo}/${c.file}" ${activeClient && activeClient.file===c.file ? 'selected':''}>${c.name}</option>`).join('');
   }
+  // Если шторка настроек открыта — перерисовать её
+  const menu = document.getElementById('menuOverlay');
+  if(menu && menu.classList.contains('on')){
+    openMenu();
+  }
   renderAll();
 }
 
-function renderClientsList(){
-  const box = document.getElementById('clientsList');
+function renderClientsList(boxId){
+  const box = document.getElementById(boxId || 'clientsList');
   if(!box) return;
   if(!clients.length){ box.innerHTML = '<div class="empty">Клиентов нет</div>'; return; }
   box.innerHTML = clients.map((c,i)=>`
@@ -163,7 +168,7 @@ function renderClientsList(){
       if(activeClient && activeClient.file === clients[i].file){ activeClient=null; trainerData=null; }
       clients.splice(i,1);
       saveTrainerSettings();
-      renderClientsList();
+      renderClientsList('clientsList');
       applyTrainerView();
     };
   });
@@ -1704,6 +1709,45 @@ function exportBackup(){
     toast('Не удалось сохранить');
   }
 }
+function exportClientBackup(){
+  if(!isReadOnly() || !trainerData || !activeClient){
+    toast('Клиент не выбран');
+    return;
+  }
+  try{
+    const payload = {
+      _app: 'massBuilder',
+      _v: STATE_VERSION,
+      _exported: new Date().toISOString(),
+      _client: activeClient.name,
+      _clientPath: `${activeClient.owner}/${activeClient.repo}/${activeClient.file}`,
+      state: trainerData
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const d = new Date();
+    const safeName = (activeClient.name || 'client').replace(/[^a-zа-я0-9_-]/gi,'_');
+    a.href = url;
+    a.download = 'massBuilder-' + safeName + '-' +
+      d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+
+    const info = document.getElementById('clientBackupInfo');
+    if(info){
+      info.textContent = 'Бэкап сохранён: ' + a.download;
+      info.className = 'backupinfo';
+    }
+    toast('Бэкап клиента сохранён');
+  }catch(e){
+    console.warn('export client fail', e);
+    toast('Не удалось сохранить');
+  }
+}
+
 function updateBackupInfo(){
   const info = document.getElementById('backupInfo');
   if(!info) return;
@@ -1818,33 +1862,56 @@ function autoRestore(){
    МЕНЮ
    ============================================================ */
 function openMenu(){
-  const p = state.profile;
-  document.getElementById('pName').value = p.name || 'Виталик';
-  document.getElementById('pHeight').value = p.height;
-  document.getElementById('pGoal').value = p.goal || 'gain';
-  document.getElementById('pTarget').value = p.target;
-  document.getElementById('pWeight').value = p.weight || 67.5;
-  document.getElementById('pTheme').value = p.theme || 'dark';
-  document.getElementById('pShift').value = p.shift || 0;
-  updateBackupInfo();
+  const inClient = isReadOnly();
 
-  // sync fields
-  const cfg = getSyncCfg();
-  if(cfg.owner) document.getElementById('syncOwner').value = cfg.owner;
-  if(cfg.repo) document.getElementById('syncRepo').value = cfg.repo;
-  if(cfg.file) document.getElementById('syncFile').value = cfg.file;
-  if(cfg.token) document.getElementById('syncToken').value = cfg.token;
-  updateSyncInfo(null);
+  const selfBox = document.getElementById('settingsSelf');
+  const clientBox = document.getElementById('settingsClient');
+  if(selfBox) selfBox.style.display = inClient ? 'none' : '';
+  if(clientBox) clientBox.style.display = inClient ? '' : 'none';
 
-  // trainer fields
-  loadTrainerSettings();
-  const tmCheck = document.getElementById('trainerMode');
-  if(tmCheck) tmCheck.checked = trainerMode;
-  const tmBlock = document.getElementById('trainerBlock');
-  if(tmBlock) tmBlock.style.display = trainerMode ? 'block' : 'none';
-  const tmToken = document.getElementById('trainerToken');
-  if(tmToken) tmToken.value = getTrainerToken();
-  renderClientsList();
+  if(inClient){
+    // Режим клиента
+    const tp = (trainerData && trainerData.profile) || {};
+    const safeSet = (id, val) => { const el = document.getElementById(id); if(el) el.value = (val==null?'':val); };
+    safeSet('pcName',   tp.name   || '—');
+    safeSet('pcHeight', tp.height || '');
+    safeSet('pcTarget', tp.target || '');
+    safeSet('pcWeight', tp.weight || '');
+    const sel = document.getElementById('pcGoal');
+    if(sel) sel.value = tp.goal || 'gain';
+
+    const nameEl = document.getElementById('trainerClientName');
+    if(nameEl && activeClient) nameEl.textContent = activeClient.name || '—';
+    const pathEl = document.getElementById('trainerClientPath');
+    if(pathEl && activeClient) pathEl.textContent = `${activeClient.owner}/${activeClient.repo}/${activeClient.file}`;
+  } else {
+    // Свой режим
+    const p = state.profile;
+    document.getElementById('pName').value = p.name || 'Виталик';
+    document.getElementById('pHeight').value = p.height;
+    document.getElementById('pGoal').value = p.goal || 'gain';
+    document.getElementById('pTarget').value = p.target;
+    document.getElementById('pWeight').value = p.weight || 67.5;
+    document.getElementById('pTheme').value = p.theme || 'dark';
+    document.getElementById('pShift').value = p.shift || 0;
+    updateBackupInfo();
+
+    const cfg = getSyncCfg();
+    if(cfg.owner) document.getElementById('syncOwner').value = cfg.owner;
+    if(cfg.repo) document.getElementById('syncRepo').value = cfg.repo;
+    if(cfg.file) document.getElementById('syncFile').value = cfg.file;
+    if(cfg.token) document.getElementById('syncToken').value = cfg.token;
+    updateSyncInfo(null);
+
+    loadTrainerSettings();
+    const tmCheck = document.getElementById('trainerMode');
+    if(tmCheck) tmCheck.checked = trainerMode;
+    const tmBlock = document.getElementById('trainerBlock');
+    if(tmBlock) tmBlock.style.display = trainerMode ? 'block' : 'none';
+    const tmToken = document.getElementById('trainerToken');
+    if(tmToken) tmToken.value = getTrainerToken();
+    renderClientsList('clientsList');
+  }
 
   document.getElementById('menuOverlay').classList.add('on');
 }
@@ -1987,6 +2054,7 @@ function bindBaseEvents(){
   document.getElementById('menuClose').onclick = closeMenu;
   document.getElementById('menuOverlay').onclick = (e)=>{ if(e.target.id==='menuOverlay') closeMenu(); };
   document.getElementById('profSave').onclick = ()=>{
+    if(isReadOnly()){ toast('Режим просмотра'); return; }
     const p = state.profile;
     p.name = document.getElementById('pName').value.trim() || 'Виталик';
     p.height = +document.getElementById('pHeight').value || 180;
@@ -2088,6 +2156,15 @@ function bindBaseEvents(){
   };
   document.getElementById('btnAutoRestore').onclick = autoRestore;
 
+  /* --- Кнопки в режиме клиента --- */
+  const btnExportClient = document.getElementById('btnExportClient');
+  if(btnExportClient) btnExportClient.onclick = exportClientBackup;
+
+  const btnExitTrainer = document.getElementById('btnExitTrainer');
+  if(btnExitTrainer) btnExitTrainer.onclick = ()=>{
+    exitTrainerMode();
+    closeMenu();
+  };
   document.getElementById('btnSaveWeight').onclick = ()=>{
     if(isReadOnly()){ toast('Режим просмотра'); return; }
     const cur = currentKey();
