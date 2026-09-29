@@ -37,7 +37,7 @@ let state = {
 let activeDate = null;
 let stripAnchor = null;
 let calYear, calMonth;
-let chartScale = 7;
+let chartScale = (()=>{ try{ return +(localStorage.getItem('massBuilderV6_chartScale')) || 7; }catch(e){ return 7; } })();
 let editingExtra = null;
 let portionFood = null;
 let portionMealId = null;
@@ -232,6 +232,18 @@ async function ghPutFile(cfg, contentStr, sha){
   return j.content.sha;
 }
 
+function syncErrorText(e){
+  const m = (e && e.message) || '';
+  if(m.includes('401')) return 'Токен недействителен (401). Проверь токен в настройках.';
+  if(m.includes('404')) return 'Репозиторий или файл не найден (404).';
+  if(m.includes('403')) return 'Нет прав на запись (403). Проверь scope токена.';
+  if(m.includes('422')) return 'Файл слишком большой или устаревший SHA (422). Попробуй ещё раз.';
+  return 'Ошибка: ' + m;
+}
+
+async function syncNow(silent){
+  if(isReadOnly()) return;
+
 async function syncNow(silent){
   if(isReadOnly()) return;
   if(syncInProgress) return;
@@ -252,8 +264,9 @@ async function syncNow(silent){
     if(!silent) toast('Синхронизировано ✓');
   }catch(e){
     console.warn('sync fail', e);
-    updateSyncInfo('Ошибка: ' + e.message);
-    if(!silent) toast('Ошибка синхронизации');
+    const msg = syncErrorText(e);
+    updateSyncInfo(msg);
+    if(!silent) toast(msg);
   }finally{
     syncInProgress = false;
   }
@@ -449,8 +462,9 @@ function getWater(date, mealId){
 }
 function setWater(date, mealId, val){
   if(isReadOnly()) return;
-  if(!state.water[date]) state.water[date]={};
-  state.water[date][mealId] = Math.max(0, Math.round(val || 0));
+  const S = getActiveState();
+  if(!S.water[date]) S.water[date]={};
+  S.water[date][mealId] = Math.max(0, Math.round(val || 0));
   saveState();
 }
 function getExtras(date, mealId){
@@ -476,7 +490,8 @@ function getMode(date){
 }
 function setMode(date, mode){
   if(isReadOnly()) return;
-  state.modes[date]=mode; saveState();
+  const S = getActiveState();
+  S.modes[date]=mode; saveState();
 }
 
 function sumMeal(meal, variant, checked, extras, waterMl){
@@ -1861,6 +1876,7 @@ function bindBaseEvents(){
     const b = e.target.closest('button');
     if(!b) return;
     chartScale = +b.dataset.scale;
+    try{ localStorage.setItem('massBuilderV6_chartScale', chartScale); }catch(_){}
     document.querySelectorAll('#scaleSeg button').forEach(x=>x.classList.toggle('on', x===b));
     renderProgress();
   });
@@ -1956,8 +1972,10 @@ function bindBaseEvents(){
     if(!editingExtra) return;
     const { mealId, idx } = editingExtra;
     const date = currentKey();
-    const arr = getExtras(date, mealId);
-    if(!arr[idx]) return;
+    const S = getActiveState();
+    const day = S.extras[date];
+    const arr = day && day[mealId];
+    if(!arr || !arr[idx]) return;
     arr[idx] = {
       name: document.getElementById('edName').value.trim() || arr[idx].name,
       kcal: Math.round(+document.getElementById('edKcal').value || 0),
@@ -2006,7 +2024,7 @@ function bindBaseEvents(){
       const cur = await ghGetFile(c);
       toast(cur.sha ? 'Связь есть, файл найден ✓' : 'Связь есть, файл пуст');
     }catch(e){
-      toast('Ошибка: ' + e.message);
+      toast(syncErrorText(e));
     }
   };
   document.getElementById('btnSyncClear').onclick = ()=>{
@@ -2192,7 +2210,10 @@ function bindMealEvents(){
       const date = currentKey();
       const mealId = del.dataset.meal;
       const idx = +del.dataset.idx;
-      const arr = getExtras(date, mealId);
+      const S = getActiveState();
+      const day = S.extras[date];
+      const arr = day && day[mealId];
+      if(!arr) return;
       arr.splice(idx,1); saveState(); renderAll();
       return;
     }
@@ -2268,6 +2289,14 @@ stripAnchor = todayKey();
 autoSnapshot();
 bindBaseEvents();
 bindMealEvents();
+// восстановить активную кнопку диапазона
+(function(){
+  const btns = document.querySelectorAll('#scaleSeg button');
+  btns.forEach(x=>{
+    const on = (+x.dataset.scale === chartScale);
+    x.classList.toggle('on', on);
+  });
+})();
 renderAll();
 updateBackupInfo();
 
