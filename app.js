@@ -847,10 +847,11 @@ function drawValueLabels(ctx, series, xAt, yAt, isPoints, pad, w, total){
     // вес — подпись СНИЗУ от точки
     ctx.textBaseline = 'top';
     series.forEach((p, i)=>{
+      if(p._ghost) return;                              // призрачную точку не подписываем
       if(i % step !== 0 && i !== series.length - 1) return;
       const x = xAt(p.x);
       const y = yAt(p.y);
-      if(x < pad.l + 12 || x > w - pad.r - 12) return; // не вылезаем по краям
+      if(x < pad.l + 12 || x > w - pad.r - 12) return;
       ctx.fillText(Number(p.y).toFixed(1), x, y + 6);
     });
   } else {
@@ -1095,6 +1096,7 @@ function drawLine(canvas, series, color, labels, selectedIdx, second, refLine, p
     }
     ctx.fillStyle = color;
     series.forEach(p=>{
+      if(p._ghost) return;                              // призрачную точку не рисуем
       const x = xAt(p.x), y = yAt(p.y);
       ctx.beginPath();
       ctx.arc(x, y, 3.5, 0, Math.PI*2);
@@ -1283,6 +1285,15 @@ function renderProgress(){
     if(k===cur) selIdx = i;
     if(S.weights[k]) wPoints.push({x:i, y:S.weights[k]});
   });
+
+  // Если в выбранном периоде только одна точка веса — продлеваем её назад
+  // ровной линией до начала графика (как будто вес был таким же).
+  if(wPoints.length === 1){
+    const only = wPoints[0];
+    if(only.x > 0){
+      wPoints.unshift({ x: 0, y: only.y, _ghost: true });
+    }
+  }
 
   drawLine(
     document.getElementById('chartWeight'),
