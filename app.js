@@ -243,9 +243,6 @@ function syncErrorText(e){
 
 async function syncNow(silent){
   if(isReadOnly()) return;
-
-async function syncNow(silent){
-  if(isReadOnly()) return;
   if(syncInProgress) return;
   const cfg = getSyncCfg();
   if(!cfg.owner || !cfg.repo || !cfg.file || !cfg.token){
