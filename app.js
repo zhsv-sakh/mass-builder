@@ -1286,13 +1286,22 @@ function renderProgress(){
     if(S.weights[k]) wPoints.push({x:i, y:S.weights[k]});
   });
 
-  // Если в выбранном периоде только одна точка веса — продлеваем её назад
-  // ровной линией до начала графика (как будто вес был таким же).
-  if(wPoints.length === 1){
-    const only = wPoints[0];
-    if(only.x > 0){
-      wPoints.unshift({ x: 0, y: only.y, _ghost: true });
+  // --- Дополняем линию веса слева, чтобы она шла с левого края ---
+  // 1) Если первая точка не на x=0 — ищем взвешивание ДО начала периода.
+  // 2) Если такое есть — ставим его на x=0 (как «призрак», без подписи и точки).
+  // 3) Если взвешиваний до начала нет — тянем первую точку периода ровно до x=0.
+  const firstX = wPoints.length ? wPoints[0].x : -1;
+  if(firstX > 0){
+    // ищем самое позднее взвешивание строго раньше начала периода
+    const periodStartKey = days[0];
+    const olderKeys = Object.keys(S.weights)
+      .filter(k => k < periodStartKey)
+      .sort();
+    let yLeft = wPoints[0].y; // по умолчанию — вес первой точки
+    if(olderKeys.length){
+      yLeft = S.weights[olderKeys[olderKeys.length - 1]];
     }
+    wPoints.unshift({ x: 0, y: yLeft, _ghost: true });
   }
 
   drawLine(
