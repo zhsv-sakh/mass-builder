@@ -324,6 +324,60 @@ function fmtDateRu(iso){
 /* ============================================================
    ЗАГРУЗКА / МИГРАЦИЯ
    ============================================================ */
+function cleanEmptyDays(){
+  let changed = false;
+
+  // meals
+  Object.keys(state.meals).forEach(date => {
+    const day = state.meals[date];
+    if(!day) return;
+    Object.keys(day).forEach(mealId => {
+      const md = day[mealId];
+      if(!md){ delete day[mealId]; changed = true; return; }
+      let hasAny = false;
+      for(const vId in md){
+        if(vId === '_activeVariant') continue;
+        const checks = md[vId];
+        if(checks && Object.keys(checks).some(k => checks[k])){ hasAny = true; break; }
+      }
+      const variantChanged = md._activeVariant && md._activeVariant !== 'v1';
+      if(!hasAny && !variantChanged){
+        delete day[mealId];
+        changed = true;
+      }
+    });
+    if(!Object.keys(day).length){ delete state.meals[date]; changed = true; }
+  });
+
+  // extras
+  Object.keys(state.extras).forEach(date => {
+    const day = state.extras[date];
+    if(!day) return;
+    Object.keys(day).forEach(mealId => {
+      if(!(day[mealId]||[]).length){ delete day[mealId]; changed = true; }
+    });
+    if(!Object.keys(day).length){ delete state.extras[date]; changed = true; }
+  });
+
+  // water
+  Object.keys(state.water).forEach(date => {
+    const day = state.water[date];
+    if(!day) return;
+    Object.keys(day).forEach(mealId => {
+      if(!(day[mealId] > 0)){ delete day[mealId]; changed = true; }
+    });
+    if(!Object.keys(day).length){ delete state.water[date]; changed = true; }
+  });
+
+  // vitamins
+  Object.keys(state.vitamins).forEach(date => {
+    const v = state.vitamins[date];
+    if(!v || !Object.values(v).some(Boolean)){ delete state.vitamins[date]; changed = true; }
+  });
+
+  return changed;
+}
+
 function loadState(){
   try{
     const raw = localStorage.getItem(LS_KEY);
@@ -334,7 +388,8 @@ function loadState(){
       state.customFoods = p.customFoods || [];
       state._v = STATE_VERSION;
       const migrated = migrateWater();
-      if(migrated) saveStateImmediate();
+      const cleaned = cleanEmptyDays();
+      if(migrated || cleaned) saveStateImmediate();
     }
   }catch(e){ console.warn('load fail', e); }
 }
@@ -361,19 +416,35 @@ function migrateWater(){
    ============================================================ */
 function getMealData(date, mealId){
   const S = getActiveState();
+  const meal = MEALS.find(x=>x.id===mealId);
+  // читаем без записи в state
+  if(!S.meals[date] || !S.meals[date][mealId]){
+    const temp = { _activeVariant:'v1', v1:{}, v2:{}, v3:{} };
+    meal.variants.forEach(v=>{ temp[v.id] = {}; });
+    return temp;
+  }
+  const m = S.meals[date][mealId];
+  meal.variants.forEach(v=>{ if(!m[v.id]) m[v.id]={}; });
+  if(!m._activeVariant) m._activeVariant='v1';
+  return m;
+}
+function ensureMealData(date, mealId){
+  const S = getActiveState();
+  const meal = MEALS.find(x=>x.id===mealId);
   if(!S.meals[date]) S.meals[date] = {};
   if(!S.meals[date][mealId]){
     S.meals[date][mealId] = { _activeVariant:'v1', v1:{}, v2:{}, v3:{} };
   }
   const m = S.meals[date][mealId];
-  MEALS.find(x=>x.id===mealId).variants.forEach(v=>{ if(!m[v.id]) m[v.id]={}; });
+  meal.variants.forEach(v=>{ if(!m[v.id]) m[v.id]={}; });
   if(!m._activeVariant) m._activeVariant='v1';
   return m;
 }
 function getWater(date, mealId){
   const S = getActiveState();
-  if(!S.water[date]) S.water[date]={};
-  const v = S.water[date][mealId];
+  const day = S.water[date];
+  if(!day) return 0;
+  const v = day[mealId];
   return typeof v === 'number' && !isNaN(v) ? v : 0;
 }
 function setWater(date, mealId, val){
@@ -384,14 +455,18 @@ function setWater(date, mealId, val){
 }
 function getExtras(date, mealId){
   const S = getActiveState();
-  if(!S.extras[date]) S.extras[date]={};
-  if(!S.extras[date][mealId]) S.extras[date][mealId]=[];
-  return S.extras[date][mealId];
+  const day = S.extras[date];
+  if(!day) return [];
+  return day[mealId] || [];
 }
 function getVitamins(date){
   const S = getActiveState();
+  return S.vitamins[date] || { d3:false, omega:false, multi:false, magnesium:false, zinc:false, creatine:false };
+}
+function ensureVitamins(date){
+  const S = getActiveState();
   if(!S.vitamins[date]){
-    S.vitamins[date]={ d3:false, omega:false, multi:false, magnesium:false, zinc:false, creatine:false };
+    S.vitamins[date] = { d3:false, omega:false, multi:false, magnesium:false, zinc:false, creatine:false };
   }
   return S.vitamins[date];
 }
@@ -525,10 +600,34 @@ function renderDayStrip(){
 function dayHasData(key){
   const S = getActiveState();
   if(S.weights[key]) return true;
-  if(S.meals[key] && Object.keys(S.meals[key]).length) return true;
-  if(S.extras[key] && Object.keys(S.extras[key]).length) return true;
+
+  // ищем реальную галочку в любом приёме
+  const m = S.meals[key];
+  if(m){
+    for(const mealId in m){
+      const md = m[mealId];
+      if(!md) continue;
+      for(const vId in md){
+        if(vId === '_activeVariant') continue;
+        const checks = md[vId];
+        if(checks && Object.keys(checks).some(k => checks[k])) return true;
+      }
+    }
+  }
+
+  // extras — есть ли хоть одна запись
+  if(S.extras[key]){
+    for(const mealId in S.extras[key]){
+      if((S.extras[key][mealId]||[]).length) return true;
+    }
+  }
+
+  // вода
   if(S.water[key] && Object.values(S.water[key]).some(v => (typeof v==='number'?v:0) > 0)) return true;
+
+  // витамины
   if(S.vitamins[key] && Object.values(S.vitamins[key]).some(Boolean)) return true;
+
   return false;
 }
 
@@ -704,7 +803,7 @@ function renderVitamins(){
     el.onclick = ()=>{
       if(isReadOnly()) return;
       const id = el.dataset.vit;
-      const vv = getVitamins(currentKey());
+      const vv = ensureVitamins(currentKey());
       vv[id] = !vv[id]; saveState(); renderAll();
     };
   });
@@ -781,8 +880,10 @@ function updatePortionPreview(){
 function addExtra(mealId, name, kcal, protein, fat, carbs, portion){
   if(isReadOnly()) return;
   const date = currentKey();
-  const arr = getExtras(date, mealId);
-  arr.push({
+  const S = getActiveState();
+  if(!S.extras[date]) S.extras[date] = {};
+  if(!S.extras[date][mealId]) S.extras[date][mealId] = [];
+  S.extras[date][mealId].push({
     name,
     kcal: Math.round(kcal),
     protein: Math.round(protein * 10) / 10,
@@ -2043,7 +2144,7 @@ function bindMealEvents(){
       const mealId = pill.dataset.meal;
       const v = pill.dataset.variant;
       const date = currentKey();
-      const md = getMealData(date, mealId);
+      const md = ensureMealData(date, mealId);
       if(md._activeVariant === v) return;
       MEALS.find(x=>x.id===mealId).variants.forEach(vr=>{ md[vr.id] = {}; });
       md._activeVariant = v;
@@ -2073,7 +2174,7 @@ function bindMealEvents(){
       const date = currentKey();
       const mealId = item.dataset.meal;
       const itemId = item.dataset.item;
-      const md = getMealData(date, mealId);
+      const md = ensureMealData(date, mealId);
       const v = md._activeVariant;
       if(!md[v]) md[v]={};
       md[v][itemId] = !md[v][itemId];
