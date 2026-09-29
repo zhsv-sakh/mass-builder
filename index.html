@@ -592,6 +592,7 @@
     <button class="iconbtn close" id="menuClose">✕</button>
     <h3>⚙️ Настройки</h3>
 
+    <div id="settingsSelf">
     <div class="section-title">👤 Профиль</div>
     <div class="profrow"><span>Имя</span><input type="text" id="pName" value="Виталик"></div>
     <div class="profrow"><span>Рост, см</span><input type="number" id="pHeight" value="180"></div>
@@ -652,6 +653,42 @@
       Данные хранятся локально в браузере (ключ massBuilderV6).<br>
       «Сдвиг приёмов» — если у тебя другой график, сдвинь время всех приёмов.
     </div>
+    </div><!-- /settingsSelf -->
+
+    <div id="settingsClient" style="display:none">
+      <div class="section-title">👨‍🏫 Режим тренера · просмотр</div>
+      <div class="backupinfo" style="text-align:left;padding:10px">
+        Просмотр: <b id="trainerClientName">—</b><br>
+        <small style="color:var(--muted);font-size:11px" id="trainerClientPath">—</small>
+      </div>
+
+      <div class="section-title">👤 Профиль клиента</div>
+      <div class="profrow"><span>Имя</span><input type="text" id="pcName" value="" disabled></div>
+      <div class="profrow"><span>Рост, см</span><input type="number" id="pcHeight" value="" disabled></div>
+      <div class="profrow"><span>Цель</span>
+        <select id="pcGoal" disabled>
+          <option value="gain">Набор массы</option>
+          <option value="keep">Поддержание</option>
+          <option value="cut">Похудение</option>
+        </select>
+      </div>
+      <div class="profrow"><span>Целевой вес, кг</span><input type="number" step="0.1" id="pcTarget" value="" disabled></div>
+      <div class="profrow"><span>Текущий вес, кг</span><input type="number" step="0.1" id="pcWeight" value="" disabled></div>
+
+      <div class="section-title">🔄 Синхронизация клиента</div>
+      <div class="backupinfo warn" style="text-align:left;padding:10px">
+        🔒 Настройка синхронизации доступна только на устройстве клиента.
+      </div>
+
+      <div class="section-title">💾 Данные клиента</div>
+      <div class="backuprow">
+        <button id="btnExportClient">💾 Сохранить бэкап клиента</button>
+        <button id="btnImportClient" disabled>📥 Восстановление недоступно</button>
+      </div>
+      <div class="backupinfo" id="clientBackupInfo">Бэкап клиента — скачивание JSON-файла</div>
+
+      <button class="primary" id="btnExitTrainer" style="margin-top:16px;background:var(--card2);color:var(--txt);border:1px solid var(--line)">← Вернуться к своим данным</button>
+    </div><!-- /settingsClient -->
   </div>
 </div>
 
