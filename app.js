@@ -1555,9 +1555,9 @@ function renderTrainings(){
       <div class="v">${rest}</div>
       <div class="l">отдых</div>
     </div>
-    <div class="ts empty">
+    <div class="ts empty ${empty > 0 ? 'warn' : ''}">
       <div class="v">${empty}</div>
-      <div class="l">пусто</div>
+      <div class="l">не выбрано</div>
     </div>
   `;
 
