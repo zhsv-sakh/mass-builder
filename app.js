@@ -1513,35 +1513,37 @@ function renderProgress(){
    ============================================================ */
 function renderTrainings(){
   const S = getActiveState();
-  const curDate = parseKey(currentKey());
-  const year = curDate.getFullYear();
-  const month = curDate.getMonth();
-
-  document.getElementById('trainMonth').textContent =
-    MONTHS_FULL[month] + ' ' + year;
-
-  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const cur = currentKey();
   const today = todayKey();
+
+  // формируем массив дней: последние chartScale дней, заканчивая выбранной датой
+  const end = cur > today ? today : cur;
+  const days = [];
+  for(let i=chartScale-1;i>=0;i--) days.push(addDays(end, -i));
+
+  // заголовок периода
+  const first = parseKey(days[0]);
+  const last  = parseKey(days[days.length-1]);
+  const firstLabel = first.getDate() + '.' + pad2(first.getMonth()+1);
+  const lastLabel  = last.getDate()  + '.' + pad2(last.getMonth()+1);
+  const periodText = (firstLabel === lastLabel)
+    ? firstLabel
+    : firstLabel + ' — ' + lastLabel;
+
+  document.getElementById('trainMonth').textContent = periodText;
 
   let train = 0, rest = 0, empty = 0;
 
-  for(let d=1; d<=daysInMonth; d++){
-    const key = year+'-'+pad2(month+1)+'-'+pad2(d);
-    // если считаем текущий месяц — не берём будущие дни;
-    // если считаем прошедший месяц — берём все
-    const isCurMonth = (year === parseKey(today).getFullYear() && month === parseKey(today).getMonth());
-    if(isCurMonth && key > today) continue;
-
+  days.forEach(key => {
     const mode = S.modes[key];
     const hasData = dayHasData(key);
-
     if(mode === 'train') train++;
     else if(mode === 'rest') rest++;
     else if(hasData) rest++;
     else empty++;
-  }
+  });
 
-  const totalPast = train + rest + empty;
+  const totalPast = days.length;
   const percent = totalPast > 0 ? Math.round(train / totalPast * 100) : 0;
 
   document.getElementById('trainStats').innerHTML = `
@@ -1566,7 +1568,7 @@ function renderTrainings(){
     pctRow.className = 'trainpercent';
     statsBox.parentElement.appendChild(pctRow);
   }
-  pctRow.innerHTML = `<b>${percent}%</b> тренировочных дней в месяце`;
+  pctRow.innerHTML = `<b>${percent}%</b> тренировочных дней за период`;
 }
 
 let resizeTimer = null;
