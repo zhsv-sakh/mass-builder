@@ -1,4 +1,4 @@
-const CACHE = 'mass-builder-v27';
+const CACHE = 'mass-builder-v28';
 const ASSETS = [
   './',
   './index.html',
