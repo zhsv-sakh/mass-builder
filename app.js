@@ -591,6 +591,7 @@ function allFoods(){ return BASE_FOODS.concat(state.customFoods); }
    DAY STRIP
    ============================================================ */
 function renderDayStrip(){
+  const S = getActiveState();
   const strip = document.getElementById('dayStrip');
   strip.innerHTML = '';
   if(!stripAnchor) stripAnchor = todayKey();
@@ -603,8 +604,11 @@ function renderDayStrip(){
     const d = parseKey(key);
     const isToday = key===todayKey();
     const hasData = dayHasData(key);
+    const isPast = key < todayKey();
+    const noMode = !S.modes[key];
+    const missed = isPast && !hasData && noMode;
     const el = document.createElement('div');
-    el.className = 'day' + (key===cur?' on':'') + (isToday?' today':'') + (hasData?' has':'');
+    el.className = 'day' + (key===cur?' on':'') + (isToday?' today':'') + (hasData?' has':'') + (missed?' missed':'');
     el.innerHTML = `
       <div class="dw">${isToday?'сег':WEEKDAYS_SHORT[d.getDay()]}</div>
       <div class="dn">${d.getDate()}</div>
