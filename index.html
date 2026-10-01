@@ -213,13 +213,26 @@
   canvas{width:100%;height:160px;display:block}
 
   /* Тренировки — компактный счётчик */
-  .trainmonth{font-size:12px;color:var(--muted);text-align:center;
-    font-weight:600;margin-bottom:10px}
+  .chartcard.compact{padding:8px 10px;margin-bottom:8px}
+  .chartcard.compact h3{margin:0 0 6px;font-size:12.5px}
+  .trainmonth{font-size:11px;color:var(--muted);text-align:left;
+    font-weight:600;margin-bottom:6px;line-height:1}
   .trainstats3{display:grid;grid-template-columns:repeat(3,1fr);
-    gap:8px;text-align:center;margin-bottom:10px}
-  .trainstats3 .ts{background:var(--card2);border-radius:10px;
-    padding:10px 4px}
-  .trainstats3 .ts .v{font-size:20px;font-weight:700;
+    gap:6px;text-align:center;margin-bottom:0}
+  .trainstats3 .ts{background:var(--card2);border-radius:8px;
+    padding:6px 3px}
+  .trainstats3 .ts .v{font-size:15px;font-weight:700;
+    font-variant-numeric:tabular-nums;line-height:1}
+  .trainstats3 .ts .l{font-size:9px;color:var(--muted);margin-top:2px}
+  .trainstats3 .ts.train .v{color:var(--good)}
+  .trainstats3 .ts.rest .v{color:var(--accent)}
+  .trainstats3 .ts.empty .v{color:var(--muted)}
+  .trainpercent{font-size:10.5px;color:var(--muted);text-align:center;
+    padding:4px;background:var(--card2);border-radius:7px;
+    font-variant-numeric:tabular-nums;margin-top:6px}
+  .trainpercent b{color:var(--txt);font-weight:700}
+
+                      
     font-variant-numeric:tabular-nums;line-height:1}
   .trainstats3 .ts .l{font-size:10.5px;color:var(--muted);margin-top:4px}
   .trainstats3 .ts.train .v{color:var(--good)}
@@ -474,6 +487,12 @@
       <div class="hist" id="weightHist"></div>
     </div>
 
+    <div class="chartcard compact">
+      <h3>🏋️ Тренировки<span class="scalehint" id="trainHint">за период</span></h3>
+      <div class="trainmonth" id="trainMonth">—</div>
+      <div class="trainstats3" id="trainStats"></div>
+    </div>
+    
     <div class="scaleseg" id="scaleSeg">
       <button data-scale="7"class="on">Неделя</button>
       <button data-scale="14">2 нед.</button>
@@ -492,12 +511,6 @@
               <h3>🥩 Белок<span class="scalehint" id="proteinHint">по дням · <span style="color:#35c759">— —</span> норма</span></h3>
       <canvas id="chartProtein"></canvas>
       </div>
-
-    <div class="chartcard">
-         <h3>🏋️ Тренировки<span class="scalehint" id="trainHint">за период</span></h3>
-      <div class="trainmonth" id="trainMonth">—</div>
-      <div class="trainstats3" id="trainStats"></div>
-    </div>
 
     <div class="chartcard">
       <h3>⚖️ Записать вес</h3>
