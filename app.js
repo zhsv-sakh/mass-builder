@@ -1933,12 +1933,16 @@ function closeMenu(){ document.getElementById('menuOverlay').classList.remove('o
    ============================================================ */
 function bindBaseEvents(){
   document.getElementById('dayPrev').onclick = ()=>{
-    stripAnchor = addDays(stripAnchor||todayKey(), -7);
-    renderDayStrip(); toast('Неделя назад');
+    const d = addDays(currentKey(), -1);
+    activeDate = d;
+    stripAnchor = d;
+    renderAll();
   };
   document.getElementById('dayNext').onclick = ()=>{
-    stripAnchor = addDays(stripAnchor||todayKey(), 7);
-    renderDayStrip(); toast('Неделя вперёд');
+    const d = addDays(currentKey(), 1);
+    activeDate = d;
+    stripAnchor = d;
+    renderAll();
   };
   document.getElementById('btnToday').onclick = ()=>{
     activeDate = todayKey();
