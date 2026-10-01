@@ -1513,7 +1513,7 @@ function renderProgress(){
    ============================================================ */
 function renderTrainings(){
   const S = getActiveState();
-  const curDate = parseKey(todayKey());
+  const curDate = parseKey(currentKey());
   const year = curDate.getFullYear();
   const month = curDate.getMonth();
 
@@ -1527,7 +1527,10 @@ function renderTrainings(){
 
   for(let d=1; d<=daysInMonth; d++){
     const key = year+'-'+pad2(month+1)+'-'+pad2(d);
-    if(key > today) continue;
+    // если считаем текущий месяц — не берём будущие дни;
+    // если считаем прошедший месяц — берём все
+    const isCurMonth = (year === parseKey(today).getFullYear() && month === parseKey(today).getMonth());
+    if(isCurMonth && key > today) continue;
 
     const mode = S.modes[key];
     const hasData = dayHasData(key);
@@ -1638,7 +1641,9 @@ function renderAll(){
   renderTotals();
   renderHeader();
   renderTodayBtn();
-  if(document.getElementById('tabProgress').classList.contains('on')) renderProgress();
+  if(document.getElementById('tabProgress').classList.contains('on')){
+    renderProgress();     // внутри уже вызывает renderTrainings
+  }
 }
 function renderHeader(){
   const S = getActiveState();
