@@ -1514,8 +1514,6 @@ function renderProgress(){
 
   const kcalsColors = kcals.map(v => goalColor(v, g.kTrain));
 
-  const kcalsColors = kcals.map(v => goalColor(v, g.kTrain));
-
   drawLine(
     document.getElementById('chartKcal'),
     kcals,
