@@ -1400,6 +1400,7 @@ function renderProgress(){
   });
   const kcals = days.map(k=> sumDay(k).k);
   const proteins = days.map(k=> sumDay(k).p);
+  const carbs = days.map(k=> sumDay(k).c);
 
   const wPoints = [];
   let selIdx = -1;
@@ -1495,6 +1496,23 @@ function renderProgress(){
     { value: g.pTrain, color: '#35c759', label: 'норма ' + g.pTrain + ' г' },
     proteinsColors
   );
+
+  document.getElementById('carbsHint').textContent = chartScale + ' дней';
+
+  const carbsColors = carbs.map(v => goalColor(v, g.cTrain));
+
+  drawLine(
+    document.getElementById('chartCarbs'),
+    carbs,
+    '#4f8cff',
+    labels,
+    selIdx,
+    null,
+    { value: g.cTrain, color: '#35c759', label: 'норма ' + g.cTrain + ' г' },
+    carbsColors
+  );
+
+  const kcalsColors = kcals.map(v => goalColor(v, g.kTrain));
 
   const kcalsColors = kcals.map(v => goalColor(v, g.kTrain));
 
